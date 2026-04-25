@@ -1,0 +1,76 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm py-2">
+    <div class="container">
+        <a class="navbar-brand fw-bold fs-4 text-gradient" href="/">
+            <i class="fas fa-rocket me-2"></i>ORIENTATION STIM
+        </a>
+
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto align-items-center">
+                
+                <li class="nav-item">
+                    <a class="nav-link px-3" href="/">Accueil</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link px-3" href="{% url 'universites' %}">Universités</a>
+                </li>
+
+                <li class="nav-item px-2">
+                    <a class="nav-link text-white opacity-75 hover-opacity-100" href="{% url 'recherche_globale' %}" title="Rechercher">
+                        <i class="fas fa-search fs-5"></i>
+                    </a>
+                </li>
+                
+                <li class="nav-item ms-lg-2">
+                    <a class="btn btn-simulateur rounded-pill px-4 py-2" href="{% url 'simulateur' %}">
+                        <i class="fas fa-calculator me-2"></i>Simulateur
+                    </a>
+                </li>
+
+                {% if user.is_authenticated %}
+                    
+                    {% include 'notification.html' %}
+
+                    <li class="nav-item dropdown ms-lg-3">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center bg-light bg-opacity-10 rounded-pill px-3 py-1" 
+                           href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <div class="avatar-nav me-2 rounded-circle" style="width: 30px; height: 30px; overflow: hidden; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center;">
+                                {% if user.profil.photo %}
+                                    <img src="{{ user.profil.photo.url }}" alt="Profil" style="width:100%; height:100%; object-fit:cover;">
+                                {% else %}
+                                    <i class="fas fa-user-circle fa-lg text-white"></i>
+                                {% endif %}
+                            </div>
+                            <span class="fw-medium text-white">{{ user.username|capfirst }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end mt-3 rounded-4 p-2 shadow-lg">
+                            <li><a class="dropdown-item rounded-3 py-2" href="{% url 'profil' %}"><i class="fas fa-user-edit me-2 text-primary"></i> Profil</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">{% csrf_token %}</form>
+                                <a href="#" class="dropdown-item rounded-3 py-2 text-danger" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                                    <i class="fas fa-sign-out-alt me-2"></i> Déconnexion
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item ms-lg-3">
+                        <a class="nav-link" href="{% url 'login' %}">Connexion</a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<style>
+    .hover-opacity-100:hover {
+        opacity: 1 !important;
+        transform: scale(1.1);
+        transition: 0.3s;
+    }
+</style>

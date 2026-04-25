@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ universite.nom }}{% endblock %}
+
+{% block extra_css %}
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const themes = [
+            { class: 'theme-blue',   color: '#003366', gradient: 'linear-gradient(135deg, #003366 0%, #0077b6 100%)' },
+            { class: 'theme-green',  color: '#1b4332', gradient: 'linear-gradient(135deg, #1b4332 0%, #2d6a4f 100%)' },
+            { class: 'theme-purple', color: '#3c096c', gradient: 'linear-gradient(135deg, #7b2cbf 0%, #3c096c 100%)' },
+            { class: 'theme-teal',   color: '#005f73', gradient: 'linear-gradient(135deg, #005f73 0%, #0a9396 100%)' }
+        ];
+
+        const selectedTheme = themes[Math.floor(Math.random() * themes.length)];
+
+        // Application dynamique du thème
+        const banner = document.getElementById('main-banner');
+        if (banner) banner.classList.add(selectedTheme.class);
+
+        document.querySelectorAll('.ecole-card').forEach(card => card.style.borderLeftColor = selectedTheme.color);
+        document.querySelectorAll('.btn-stim').forEach(btn => btn.style.background = selectedTheme.gradient);
+        document.querySelectorAll('.text-gradient').forEach(text => text.style.backgroundImage = selectedTheme.gradient);
+        
+        const underline = document.querySelector('.title-underline');
+        if (underline) underline.style.backgroundColor = selectedTheme.color;
+    });
+
+    // Fonction de dépliage Pro Pro Max
+    function toggleExpand(id, btn) {
+        const textElement = document.getElementById('desc-' + id);
+        const icon = btn.querySelector('i');
+        const span = btn.querySelector('span');
+        
+        textElement.classList.toggle('expanded');
+        
+        if (textElement.classList.contains('expanded')) {
+            span.innerText = "Réduire";
+            icon.style.transform = "rotate(180deg)";
+        } else {
+            span.innerText = "Lire la suite";
+            icon.style.transform = "rotate(0deg)";
+        }
+    }
+</script>
+
+<style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f8f9fa; }
+
+    /* Bannière Flottante */
+    .uni-banner {
+        background: linear-gradient(135deg, #003366 0%, #0077b6 100%);
+        border-radius: 30px;
+        padding: 60px 40px;
+        color: white;
+        position: relative;
+        z-index: 1;
+    }
+
+    .logo-float-box {
+        background: white;
+        padding: 20px;
+        border-radius: 25px;
+        box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        transform: translateY(20px);
+    }
+
+    /* Système de Text Truncate */
+    .expandable-text {
+        max-height: 4.8em; /* Environ 3 lignes */
+        overflow: hidden;
+        transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+    }
+    .expandable-text.expanded { max-height: 2000px; }
+
+    .btn-read-more {
+        background: none; border: none; color: inherit;
+        font-weight: 700; font-size: 0.85rem; padding: 0;
+        cursor: pointer; display: flex; align-items: center;
+        opacity: 0.9; margin-top: 8px;
+    }
+
+    /* Cartes Écoles */
+    .ecole-card {
+        border-radius: 24px;
+        border: none;
+        background: white;
+        transition: all 0.3s ease;
+    }
+    .ecole-card:hover { transform: translateY(-5px); box-shadow: 0 20px 40px rgba(0,0,0,0.05) !important; }
+
+    /* Zone Forum minimaliste */
+    .bg-comment-zone {
+        background-color: #fcfdfe;
+        border-left: 1px solid #f1f4f8;
+    }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 10px; }
+
+    .text-gradient {
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 800;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div id="main-banner" class="uni-banner mb-5 shadow-lg animate__animated animate__fadeIn">
+        <div class="row align-items-center">
+            <div class="col-md-3 text-center mb-4 mb-md-0">
+                <div class="logo-float-box d-inline-block">
+                    <img src="{{ universite.logo.url }}" class="img-fluid" style="max-height: 120px;" alt="Logo">
+                </div>
+            </div>
+            <div class="col-md-9">
+                <h1 class="fw-800 display-5 mb-3">{{ universite.nom }}</h1>
+                
+                <div class="description-wrapper mb-4">
+                    <div id="desc-univ" class="expandable-text opacity-90">
+                        {{ universite.description|safe }}
+                    </div>
+                    <button class="btn-read-more text-white" onclick="toggleExpand('univ', this)">
+                        <span>Lire la suite</span> <i class="fas fa-chevron-down ms-2 transition"></i>
+                    </button>
+                </div>
+
+                <div class="d-flex flex-wrap gap-3">
+                    <span class="badge rounded-pill bg-white bg-opacity-25 border border-white border-opacity-25 px-3 py-2">
+                        <i class="fas fa-map-marker-alt text-warning me-2"></i> {{ universite.localisation }}
+                    </span>
+                    <span class="badge rounded-pill bg-white bg-opacity-25 border border-white border-opacity-25 px-3 py-2">
+                        <i class="fas fa-university me-2"></i> {{ ecoles|length }} Établissements
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="text-center mb-5">
+        <h2 class="text-gradient h1">Facultés & Instituts</h2>
+        <div class="mx-auto title-underline rounded-pill" style="height: 6px; width: 60px;"></div>
+    </div>
+
+    <div class="row">
+        {% for ecole in ecoles %}
+        <div class="col-12 mb-5">
+            <div class="card ecole-card shadow-sm border-0 overflow-hidden position-relative">
+                <div class="row g-0">
+                    <div class="col-lg-5 p-4 bg-white d-flex flex-column justify-content-center">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="p-2 border rounded-4 bg-light me-3 shadow-sm">
+                                <img src="{{ ecole.logo.url }}" style="width: 50px; height: 50px; object-fit: contain;">
+                            </div>
+                            <h3 class="h4 fw-800 mb-0 text-dark pe-5">{{ ecole.nom }}</h3>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div id="desc-{{ ecole.id }}" class="expandable-text text-muted">
+                                {{ ecole.description|truncatewords:20 }}
+                            </div>
+                        </div>
+
+                        <a href="{% url 'detail_ecole' ecole.id %}" class="btn btn-stim rounded-pill px-5 py-3 fw-bold shadow-sm mt-auto text-white">
+                            Explorer les filières <i class="fas fa-arrow-right ms-2"></i>
+                        </a>
+                    </div>
+
+                    <div class="col-lg-7 bg-comment-zone p-4">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <span class="fw-bold text-dark">
+                                <i class="fas fa-comments text-primary me-2"></i>Forum d'aide
+                            </span>
+                            <span class="badge bg-white text-muted shadow-sm rounded-pill px-3 py-2">
+                                {{ ecole.commentaires.count }} avis
+                            </span>
+                        </div>
+                        <div class="custom-scrollbar" style="max-height: 280px; overflow-y: auto; padding-right: 10px;">
+                            {% include 'section_commentaires.html' with type_obj='ecole' obj=ecole commentaires=ecole.commentaires.all %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

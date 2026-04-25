@@ -1,0 +1,178 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Institutions de Référence - ORIENTATION STIM{% endblock %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700;900&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@800;900&display=swap');
+
+    body { font-family: 'Urbanist', sans-serif; background-color: #f8fafc; }
+
+    /* HEADER TITRE */
+    .page-header {
+        padding: 80px 0 40px;
+        text-align: center;
+    }
+    .text-gradient {
+        background: linear-gradient(45deg, #001f3f, #0d6efd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-family: 'Outfit', sans-serif;
+    }
+
+    /* SECTION UNIVERSITÉ - LARGE */
+    .univ-section {
+        margin-bottom: 60px;
+        border-radius: 50px;
+        overflow: hidden;
+        background: white;
+        box-shadow: 0 20px 50px rgba(0,0,0,0.05);
+        transition: transform 0.4s ease;
+    }
+    .univ-section:hover {
+        transform: scale(1.01);
+    }
+
+    /* CONTENEUR LOGO GÉANT */
+    .univ-visual {
+        background: #ffffff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 60px;
+        min-height: 400px;
+        position: relative;
+    }
+    .univ-visual img {
+        max-width: 100%;
+        max-height: 280px;
+        object-fit: contain;
+        filter: drop-shadow(0 15px 30px rgba(0,0,0,0.1));
+    }
+
+    /* BADGE ÉCOLES */
+    .badge-float {
+        position: absolute;
+        top: 30px;
+        left: 30px;
+        background: #001f3f;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-weight: 800;
+        letter-spacing: 1px;
+        box-shadow: 0 10px 20px rgba(0,31,63,0.2);
+    }
+
+    /* CONTENU TEXTE */
+    .univ-content {
+        padding: 60px;
+    }
+    .univ-name {
+        font-family: 'Outfit', sans-serif;
+        font-weight: 900;
+        color: #001f3f;
+        font-size: 2.8rem;
+        line-height: 1.1;
+    }
+    .univ-description {
+        font-size: 1.15rem;
+        line-height: 1.8;
+        color: #64748b;
+        text-align: justify;
+    }
+
+    /* BOUTON ACTION */
+    .btn-ultra {
+        background: #001f3f;
+        color: white;
+        padding: 18px 40px;
+        border-radius: 20px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+    }
+    .btn-ultra:hover {
+        background: #0d6efd;
+        color: white;
+        transform: translateX(10px);
+        box-shadow: 0 15px 30px rgba(13, 110, 253, 0.2);
+    }
+
+    /* DÉCORATIONS */
+    .dot-deco {
+        height: 12px;
+        width: 12px;
+        background: #0d6efd;
+        border-radius: 50%;
+        display: inline-block;
+        margin-right: 10px;
+    }
+</style>
+
+<div class="container">
+    <header class="page-header" data-aos="fade-down">
+        <h1 class="display-2 fw-900 text-gradient">Universités d'Excellence</h1>
+        <p class="lead text-muted fs-4">Explorez les 4 piliers universités publiques du Bénin.</p>
+    </header>
+
+    {% for univ in universites %}
+    <div class="univ-section shadow-lg" data-aos="fade-up">
+        <div class="row g-0 {% if forloop.counter|divisibleby:2 %}flex-row-reverse{% endif %}">
+            
+            <div class="col-lg-5 univ-visual bg-light">
+                <span class="badge-float">
+                    <i class="fas fa-graduation-cap me-2 text-warning"></i>
+                    {{ univ.ecoles.count }} ÉCOLES{{ univ.ecoles.count|pluralize|upper }}
+                </span>
+                {% if univ.logo %}
+                    <img src="{{ univ.logo.url }}" alt="{{ univ.nom }}">
+                {% else %}
+                    <i class="fas fa-university fa-6x text-muted opacity-25"></i>
+                {% endif %}
+            </div>
+
+            <div class="col-lg-7 univ-content d-flex flex-column justify-content-center">
+                <div class="mb-3 d-flex align-items-center">
+                    <span class="dot-deco"></span>
+                    <span class="fw-bold text-primary text-uppercase letter-spacing-2">{{ univ.ville|default:"Campus National" }}</span>
+                </div>
+                
+                <h2 class="univ-name mb-4">{{ univ.nom }}</h2>
+                
+                {% if univ.nom_complet %}
+                    <h5 class="text-secondary fw-bold mb-4 opacity-75">{{ univ.nom_complet }}</h5>
+                {% endif %}
+
+                <div class="univ-description mb-5">
+                    {{ univ.description|safe|truncatewords:50 }}
+                </div>
+
+                <div>
+                    <a href="{% url 'detail_universite' univ.id %}" class="btn-ultra shadow">
+                        Visiter les écoles du campus
+                        <i class="fas fa-chevron-right ms-3"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="py-5 text-center">
+        <div class="p-5 bg-white rounded-5 shadow-sm">
+            <h3 class="text-muted">Aucune université n'est encore référencée.</h3>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<script>
+    AOS.init({ duration: 1000, once: true });
+</script>
+{% endblock %}

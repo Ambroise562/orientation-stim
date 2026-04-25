@@ -1,0 +1,224 @@
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.0.96/css/materialdesignicons.min.css" rel="stylesheet">
+
+<style>
+  :root {
+    --accent-color: #6366f1;
+    --accent-light: #818cf8;
+    --bg-dark: #0b0f1a;
+    --text-muted: #94a3b8;
+  }
+
+  .footer-premium {
+    background: var(--bg-dark);
+    padding: 80px 0 30px;
+    font-family: 'Inter', sans-serif;
+    color: #ffffff;
+    position: relative;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  /* Effet de lueur en arrière-plan */
+  .footer-premium::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 10%;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(99, 102, 241, 0.08) 0%, rgba(99, 102, 241, 0) 70%);
+    pointer-events: none;
+  }
+
+  .brand-pro {
+    font-size: 26px;
+    font-weight: 800;
+    letter-spacing: -1px;
+    color: #fff;
+    text-decoration: none !important;
+    display: inline-block;
+    margin-bottom: 25px;
+  }
+
+  .brand-pro span {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .about-text {
+    font-size: 15px;
+    line-height: 1.8;
+    color: var(--text-muted);
+    font-weight: 400;
+  }
+
+  .official-badge {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(99, 102, 241, 0.1);
+    border: 1px solid rgba(99, 102, 241, 0.2);
+    padding: 8px 15px;
+    border-radius: 10px;
+    font-size: 13px;
+    color: var(--accent-light);
+    margin-top: 20px;
+  }
+
+  .footer-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 30px;
+    color: #f8fafc;
+  }
+
+  /* Style des liens institutionnels */
+  .nav-pro {
+    list-style: none;
+    padding: 0;
+  }
+
+  .nav-pro li { margin-bottom: 15px; }
+
+  .nav-pro a {
+    color: var(--text-muted);
+    text-decoration: none !important;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .nav-pro a:hover {
+    color: #fff;
+    transform: translateX(8px);
+  }
+
+  .nav-pro a i {
+    font-size: 18px;
+    margin-right: 10px;
+    color: var(--accent-color);
+  }
+
+  /* Section Contact stylisée */
+  .contact-card {
+    background: rgba(255, 255, 255, 0.02);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    padding: 25px;
+    border-radius: 20px;
+  }
+
+  .contact-label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    margin-bottom: 5px;
+  }
+
+  .contact-value {
+    color: #fff !important;
+    font-weight: 600;
+    font-size: 15px;
+    text-decoration: none !important;
+    transition: color 0.2s;
+  }
+
+  .contact-value:hover { color: var(--accent-light); }
+
+  .divider-pro {
+    height: 1px;
+    background: linear-gradient(to right, rgba(255,255,255,0), rgba(255,255,255,0.05), rgba(255,255,255,0));
+    margin: 60px 0 30px;
+  }
+
+  .footer-bottom-flex {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .dev-by {
+    font-weight: 400;
+  }
+
+  .dev-by strong {
+    color: #fff;
+    font-weight: 600;
+    position: relative;
+  }
+
+  .dev-by strong::after {
+    content: "";
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 1px;
+    background: var(--accent-color);
+  }
+</style>
+
+<footer class="footer-premium">
+  <div class="container">
+    <div class="row g-5">
+      
+      <div class="col-lg-5">
+        <a href="{% url 'home' %}" class="brand-pro">STIM<span>Orientation</span></a>
+        <p class="about-text">
+          OrientationSTIM redéfinit l'accès aux études supérieures au Bénin. En combinant technologie et données académiques, nous offrons aux futurs bacheliers une vision claire de leur avenir universitaire.
+        </p>
+        <div class="official-badge">
+          <i class="mdi mdi-shield-check-outline me-2"></i>
+          Basé sur le guide d'orientation officiel (DO Bénin)
+        </div>
+      </div>
+
+      <div class="col-lg-3 col-md-6">
+        <h5 class="footer-title">Ressources</h5>
+        <ul class="nav-pro">
+          <li><a href="https://enseignementsuperieur.gouv.bj/" target="_blank"><i class="mdi mdi-bank-outline"></i> Ministère (MESRS)</a></li>
+          <li><a href="https://uac.bj/" target="_blank"><i class="mdi mdi-school-outline"></i> Univ. Abomey-Calavi</a></li>
+          <li><a href="https://unstim.bj/" target="_blank"><i class="mdi mdi-school-outline"></i> UNSTIM Abomey</a></li>
+          <li><a href="https://up.bj/" target="_blank"><i class="mdi mdi-school-outline"></i> UP Parakou </a></li>
+          <li><a href="https://una.bj/" target="_blank"><i class="mdi mdi-school-outline"></i> UNA Benin</a></li>
+        </ul>
+      </div>
+
+      <div class="col-lg-4 col-md-6">
+        <h5 class="footer-title">Nous rapportez vos avis</h5>
+        <div class="contact-card">
+          <div class="mb-4">
+            <span class="contact-label">Envoyez-nous un mail</span>
+            <a href="mailto:Ambroisehdg@gmail.com" class="contact-value">Ambrohdg07@gmail.com</a>
+          </div>
+          <div>
+            <span class="contact-label">Contactez-nous via WhatsApp</span>
+            <a href="tel:+2290149750431" class="contact-value">+229 01 49 75 04 31</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="divider-pro"></div>
+
+    <div class="footer-bottom-flex">
+      <div class="copy">
+        © <span id="year"></span> STIM Orientation.
+      </div>
+      <div class="dev-by">
+        Développé par <strong>Ambroise Sedjro HOUNDAGNANME</strong>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById('year').textContent = new Date().getFullYear();
+</script>

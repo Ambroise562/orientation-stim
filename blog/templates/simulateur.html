@@ -1,0 +1,284 @@
+{% extends 'base.html' %}
+
+{% block title %}Simulateur Premium | Orientation Bénin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Palette de couleurs STIM */
+    :root {
+        --primary-gradient: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+        --success-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        --warning-gradient: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        --dark-bg: #0f172a;
+    }
+
+    /* Hero Section avec animation */
+    .hero-simulator {
+        background: var(--dark-bg);
+        background-image: radial-gradient(circle at 2px 2px, rgba(255,255,255,0.05) 1px, transparent 0);
+        background-size: 32px 32px;
+        color: white;
+        padding: 60px 0 100px 0;
+        border-radius: 0 0 50px 50px;
+        text-align: center;
+    }
+
+    /* Panneau de saisie flottant */
+    .floating-form {
+        margin-top: -60px;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 30px;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Style des inputs de notes */
+    .note-card-input {
+        background: #f1f5f9;
+        border: 2px solid transparent;
+        border-radius: 18px;
+        padding: 20px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .note-card-input:focus-within {
+        background: white;
+        border-color: #6366f1;
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(99, 102, 241, 0.1);
+    }
+
+    /* Cartes de résultats explosives */
+    .res-card {
+        border: none;
+        border-radius: 25px;
+        background: white;
+        transition: all 0.4s ease;
+        position: relative;
+        overflow: hidden;
+        border: 1px solid #e2e8f0;
+    }
+
+    .res-card:hover {
+        transform: scale(1.03);
+        box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Badge Score en dégradé */
+    .score-banner {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 15px 25px;
+        border-bottom-left-radius: 25px;
+        font-weight: 900;
+        font-size: 1.5rem;
+        color: white;
+        box-shadow: -5px 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .bg-excellent { background: var(--success-gradient); }
+    .bg-good { background: var(--primary-gradient); }
+    .bg-average { background: var(--warning-gradient); }
+
+    /* Tags de coefficients */
+    .coef-pill {
+        background: #f8fafc;
+        border-left: 4px solid #6366f1;
+        padding: 10px 15px;
+        border-radius: 12px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        transition: background 0.2s;
+    }
+
+    .coef-pill:hover {
+        background: #eff6ff;
+    }
+
+    .btn-action-view {
+        background: #0f172a;
+        color: white;
+        border-radius: 12px;
+        font-weight: 600;
+        padding: 10px;
+        text-decoration: none;
+        display: block;
+        text-align: center;
+        transition: opacity 0.2s;
+    }
+
+    /* Animation */
+    .stagger-in {
+        animation: fadeInUp 0.5s ease forwards;
+        opacity: 0;
+    }
+
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero-simulator">
+    <div class="container">
+        <span class="badge rounded-pill bg-primary mb-3 px-3 py-2">ALGORITHME OFFICIEL</span>
+        <h1 class="display-4 fw-extrabold mb-2">Simulateur de Classement</h1>
+        <p class="lead opacity-75">Visualisez vos chances d'admission en temps réel</p>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-11">
+            
+            <div class="floating-form p-4 p-md-5">
+                <form method="POST" id="form-simulateur">
+                    {% csrf_token %}
+                    
+                    <div class="text-center mb-5">
+                        <h4 class="fw-bold mb-3">SÉLECTION DE VOTRE SÉRIE</h4>
+                        <div style="max-width: 400px; margin: 0 auto;">
+                            {{ form.serie }}
+                        </div>
+                    </div>
+
+                    <div id="section-notes" style="display: none;" class="stagger-in">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h5 class="m-0 fw-bold">SAISISSEZ VOS NOTES DU BAC</h5>
+                        </div>
+
+                        <div class="row g-4">
+                            {% for field in form %}
+                                {% if "note_" in field.name %}
+                                    <div class="col-md-4 col-sm-6 note-wrapper" id="div-{{ field.name }}" style="display: none;">
+                                        <div class="note-card-input">
+                                            <label class="form-label small fw-bold text-muted text-uppercase mb-2">
+                                                {{ field.label|truncatechars:25 }}
+                                            </label>
+                                            {{ field }}
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 mt-5 py-3 fw-bold rounded-4 shadow-lg border-0" style="background: var(--primary-gradient);">
+                            ANALYSER MES RÉSULTATS <i class="fas fa-arrow-right ms-2"></i>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            {% if resultats %}
+            <div id="resultats-orientation" class="mt-5 pt-4">
+                <div class="text-center mb-5">
+                    <h2 class="fw-bold">Vos Meilleures Opportunités</h2>
+                    <p class="text-muted">Classement décroissant selon votre moyenne calculée</p>
+                </div>
+
+                <div class="row g-4">
+                    {% for item in resultats %}
+                    <div class="col-lg-4 col-md-6 stagger-in" style="animation-delay: {{ forloop.counter0|add:1 }}00ms;">
+                        <div class="card h-100 res-card shadow-sm">
+                            
+                            {% if user.is_authenticated %}
+                            <button class="btn btn-white rounded-circle shadow-sm toggle-favori" 
+                                    data-filiere-id="{{ item.obj_filiere.id }}"
+                                    style="position: absolute; top: 15px; left: 15px; z-index: 30; width: 42px; height: 42px; border: none; background: white;">
+                                <i class="{% if item.obj_filiere.id in user_favoris_ids %}fas{% else %}far{% endif %} fa-heart text-danger" style="font-size: 1.2rem;"></i>
+                            </button>
+                            {% endif %}
+
+                            <div class="score-banner {% if item.moyenne_classement >= 14 %}bg-excellent{% elif item.moyenne_classement >= 12 %}bg-good{% else %}bg-average{% endif %}" style="z-index: 10;">
+                                {{ item.moyenne_classement|floatformat:2 }}
+                            </div>
+
+                            <div class="card-body p-4 pt-5">
+                                <div class="mt-4 mb-4"> <h5 class="fw-bold text-dark mb-1">{{ item.filiere }}</h5>
+                                    <span class="text-primary small fw-bold text-uppercase">
+                                        <i class="fas fa-university me-1"></i> {{ item.obj_filiere.ecole.nom }}
+                                    </span>
+                                </div>
+
+                                <div class="separator-dashed mb-3"></div>
+
+                                <p class="small fw-bold text-muted text-uppercase mb-3" style="letter-spacing: 1px;">Détails du calcul :</p>
+                                <div class="coefficients-list">
+                                    {% for detail in item.details %}
+                                    <div class="coef-pill">
+                                        <span class="small text-dark">{{ detail.matiere|truncatechars:18 }}</span>
+                                        <div class="text-end">
+                                            <span class="badge bg-white text-primary border me-1">{{ detail.note }}</span>
+                                            <span class="text-muted small">x{{ detail.coefficient }}</span>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+
+                            <div class="card-footer bg-light border-0 p-3">
+                                <a href="{% url 'detail_ecole' item.obj_filiere.ecole.id %}" class="btn-action-view">
+                                    Découvrir la formation
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+<script>
+    const configMatieres = {{ config_js|safe }};
+    const serieSelect = document.getElementById('serie-select');
+    const sectionNotes = document.getElementById('section-notes');
+
+    function actualiserAffichageNotes() {
+        const serieId = serieSelect.value;
+        const matieresAffichees = configMatieres[serieId] || [];
+
+        if (serieId && matieresAffichees.length > 0) {
+            sectionNotes.style.display = 'block';
+            document.querySelectorAll('.note-wrapper').forEach(el => el.style.display = 'none');
+            matieresAffichees.forEach(fieldName => {
+                const element = document.getElementById('div-' + fieldName);
+                if (element) element.style.display = 'block';
+            });
+        } else {
+            sectionNotes.style.display = 'none';
+        }
+    }
+
+    serieSelect.addEventListener('change', actualiserAffichageNotes);
+    document.addEventListener('DOMContentLoaded', actualiserAffichageNotes);
+
+    // Animation au submit
+    document.getElementById('form-simulateur').addEventListener('submit', function(e) {
+        const btn = this.querySelector('button[type="submit"]');
+        if (this.checkValidity()) {
+            btn.innerHTML = `<span class="spinner-grow spinner-grow-sm me-2"></span> CALCUL EN COURS...`;
+            btn.style.opacity = '0.7';
+        }
+    });
+
+    {% if resultats %}
+        document.addEventListener('DOMContentLoaded', function() {
+            const res = document.getElementById('resultats-orientation');
+            if (res) res.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        });
+    {% endif %}
+</script>
+{% endblock %}

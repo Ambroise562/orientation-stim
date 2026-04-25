@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+    <div class="col-md-6 col-lg-4" data-aos="zoom-in">
+        <div class="card shadow-lg border-0 rounded-4">
+            <div class="card-body p-5">
+                <div class="text-center mb-4">
+                    <h2 class="fw-bold text-primary">Connexion</h2>
+                    <p class="text-muted small">Heureux de vous revoir sur STIM !</p>
+                </div>
+
+                <form method="POST">
+                    {% csrf_token %}
+                    
+                    {% if form.non_field_errors %}
+                        <div class="alert alert-danger py-2 small">
+                            Identifiants incorrects. Veuillez réessayer.
+                        </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Nom d'utilisateur</label>
+                        <div class="input-group search-group py-1 border shadow-none" style="background-color: #f8f9fa;">
+                            <span class="input-group-text bg-transparent border-0 pe-0">
+                                <i class="bi bi-person text-muted"></i>
+                            </span>
+                            <input type="text" name="username" class="form-control bg-transparent border-0 shadow-none" placeholder="Votre pseudo" required>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold small">Mot de passe</label>
+                        <div class="input-group search-group py-1 border shadow-none" style="background-color: #f8f9fa;">
+                            <span class="input-group-text bg-transparent border-0 pe-0">
+                                <i class="bi bi-lock text-muted"></i>
+                            </span>
+                            <input type="password" name="password" class="form-control bg-transparent border-0 shadow-none" placeholder="••••••••" required>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold mt-3 rounded-pill shadow-sm">
+                        Se connecter
+                    </button>
+                </form>
+
+                <div class="text-center mt-4">
+                    <p class="small text-muted mb-0">Nouveau ici ? 
+                        <a href="{% url 'inscription' %}" class="text-primary fw-bold text-decoration-none">Créer un compte</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="text-end mb-3">
+    <a href="{% url 'password_reset' %}" class="small text-decoration-none">Mot de passe oublié ?</a>
+</div>
+{% endblock %}

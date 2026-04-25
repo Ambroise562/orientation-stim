@@ -1,0 +1,217 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row g-4">
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-lg rounded-4 overflow-hidden">
+                <div class="p-4 {% if user.profil.type_utilisateur == 'AINE' %}bg-dark{% else %}bg-primary{% endif %} text-center text-white position-relative" 
+                     style="background: linear-gradient(135deg, #003366 0%, #0077b6 100%);">
+                    
+                    <div class="mb-3">
+                        {% if user.profil.photo %}
+                            <img src="{{ user.profil.photo.url }}" class="rounded-circle border border-4 border-white shadow" 
+                                 style="width: 130px; height: 130px; object-fit: cover;">
+                        {% else %}
+                            <i class="fas fa-user-circle fa-8x"></i>
+                        {% endif %}
+                    </div>
+                    
+                    <h3 class="fw-bold mb-0">{{ user.username|capfirst }}</h3>
+                    <p class="opacity-75 small">{{ user.email }}</p>
+                    
+                    <span class="badge bg-white text-primary rounded-pill px-3 py-2 shadow-sm fw-bold">
+                        {{ user.profil.get_type_utilisateur_display }}
+                    </span>
+                </div>
+
+                <div class="card-body p-4 bg-white">
+                    <div class="mb-4">
+                        <label class="small text-muted text-uppercase fw-black letter-spacing-1">Série du BAC</label>
+                        <p class="mb-0 fw-bold text-dark">{{ user.profil.serie|default:"Non renseignée" }}</p>
+                    </div>
+
+                    {% if user.profil.etablissement %}
+                    <div class="mb-4">
+                        <label class="small text-muted text-uppercase fw-black">Établissement actuel</label>
+                        <div class="d-flex align-items-center mt-1">
+                            <i class="fas fa-university me-2 text-primary"></i>
+                            <p class="mb-0 fw-medium">{{ user.profil.etablissement }}</p>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-4">
+                        <label class="small text-muted text-uppercase fw-black">Bio / Présentation</label>
+                        <p class="small text-secondary mb-0" style="font-style: italic;">
+                            "{{ user.profil.bio|default:"Aucune biographie rédigée pour le moment." }}"
+                        </p>
+                    </div>
+
+                    <hr class="my-4 opacity-25">
+
+                    <a href="{% url 'modifier_profil' %}" class="btn btn-primary w-100 rounded-pill py-2 shadow-sm fw-bold">
+                        <i class="fas fa-user-edit me-2"></i>Modifier mon profil
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-8">
+            
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="fas fa-bell me-2 text-warning"></i>Historique des Notifications
+                    </h5>
+                    <span class="badge bg-light text-dark rounded-pill">{{ mes_notifications|length }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="list-group list-group-flush">
+                        {% for notif in mes_notifications %}
+                        <div class="list-group-item px-0 py-3 border-0 border-bottom">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <div class="d-flex align-items-center">
+                                    <div class="icon-circle {% if not notif.est_lu %}bg-primary text-white shadow-sm{% else %}bg-light text-muted{% endif %} me-3" 
+                                         style="width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+                                        <i class="fas {% if not notif.est_lu %}fa-envelope{% else %}fa-envelope-open{% endif %}"></i>
+                                    </div>
+                                    <div>
+                                        <p class="mb-0 text-dark {% if not notif.est_lu %}fw-bold{% endif %}">
+                                            {{ notif.message }}
+                                        </p>
+                                        <small class="text-muted">{{ notif.date_creation|timesince }}</small>
+                                    </div>
+                                </div>
+                                
+                                <div class="d-flex align-items-center ms-3">
+                                    <a href="{% url 'archiver_notification' notif.id %}" 
+                                       class="btn btn-sm btn-outline-secondary border-0 rounded-circle me-2" 
+                                       title="Archiver">
+                                        <i class="fas fa-archive"></i>
+                                    </a>
+
+                                    <a href="{% url 'marquer_comme_lu' notif.id %}" class="btn btn-sm btn-white shadow-sm rounded-pill">
+                                        <i class="fas fa-chevron-right text-primary"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4">
+                            <p class="text-muted small mb-0">Aucune notification active.</p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mb-4">
+                <div class="card-header bg-white border-0 py-3 d-flex align-items-center justify-content-between">
+                    <h5 class="fw-bold mb-0 text-primary">
+                        <i class="fas fa-heart me-2 text-danger"></i>Mes Filières Favorites
+                    </h5>
+                    <span class="badge bg-light text-dark rounded-pill">{{ favoris|length }}</span>
+                </div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        {% for fav in favoris %}
+                        <div class="col-md-6">
+                            <div class="p-3 border rounded-4 d-flex align-items-center justify-content-between bg-light hover-shadow transition">
+                                <div>
+                                    <h6 class="mb-0 fw-bold">{{ fav.filiere.nom }}</h6>
+                                    <small class="text-muted">{{ fav.filiere.ecole.nom }}</small>
+                                </div>
+                                <a href="{% url 'detail_ecole' fav.filiere.ecole.id %}" class="btn btn-sm btn-white shadow-sm rounded-circle">
+                                    <i class="fas fa-chevron-right text-primary"></i>
+                                </a>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-center py-4">
+                            <p class="text-muted small">Vous n'avez pas encore marqué de filières en favoris.</p>
+                            <a href="{% url 'universites' %}" class="btn btn-sm btn-outline-primary rounded-pill">Explorer</a>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="card border-0 shadow-sm rounded-4 mt-4">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-4 text-primary">
+                        <i class="fas fa-history me-2"></i>Mon Activité
+                    </h5>
+
+                    {% if mes_interactions %}
+                        <div class="list-group list-group-flush">
+                            {% for comm in mes_interactions %}
+                            <div class="list-group-item px-0 py-3 border-0 border-bottom">
+                                <div class="d-flex justify-content-between align-items-start">
+                                    <div>
+                                        <p class="mb-1 text-dark">
+                                            <i class="fas fa-comment-dots text-primary opacity-50 me-2"></i>
+                                            {% if comm.filiere %}
+                                                A commenté la filière <strong>{{ comm.filiere.nom }}</strong>
+                                            {% else %}
+                                                A commenté l'école <strong>{{ comm.ecole.nom }}</strong>
+                                            {% endif %}
+                                        </p>
+                                        <small class="text-muted d-block mb-2 italic">
+                                            "{{ comm.contenu|truncatechars:60 }}"
+                                        </small>
+                                        <span class="badge bg-light text-muted fw-normal" style="font-size: 0.7rem;">
+                                            {{ comm.date_pub|date:"d M Y" }}
+                                        </span>
+                                    </div>
+
+                                    <div class="ms-3">
+                                        {% if comm.filiere %}
+                                            <a href="{% url 'detail_ecole' comm.filiere.ecole.id %}#comment-{{ comm.id }}" 
+                                            class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
+                                                <i class="fas fa-external-link-alt me-1"></i> Aller voir
+                                            </a>
+                                        {% else %}
+                                            <a href="{% url 'detail_universite' comm.ecole.id %}#comment-{{ comm.id }}" 
+                                            class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
+                                                <i class="fas fa-external-link-alt me-1"></i> Aller voir
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted text-center py-3">Aucun commentaire pour le moment.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .letter-spacing-1 { letter-spacing: 1px; }
+    .bg-blue-soft { background-color: #eef2f7; }
+    
+    .hover-shadow:hover {
+        box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+        background-color: #fff !important;
+        border-color: var(--bs-primary) !important;
+    }
+
+    .transition { transition: all 0.3s ease; }
+
+    /* Animation pour l'entrée de la page */
+    .card {
+        animation: slideUp 0.5s ease forwards;
+    }
+
+    @keyframes slideUp {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+{% endblock %}

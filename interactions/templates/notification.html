@@ -1,0 +1,50 @@
+{# templates/notifications.html #}
+
+{% if user.is_authenticated and unread_notifications_count > 0 %}
+<li class="nav-item dropdown ms-lg-3">
+    <a class="nav-link position-relative text-white opacity-75 hover-opacity-100" 
+       href="#" id="notifDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+        <i class="fas fa-bell fs-5"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.6rem; padding: 0.35em 0.65em;">
+            {{ unread_notifications_count }}
+        </span>
+    </a>
+    
+    <ul class="dropdown-menu dropdown-menu-end shadow-lg border-0 rounded-4 mt-3 p-2 animate__animated animate__fadeIn" 
+        style="width: 300px; background-color: #1c2a39 !important; z-index: 2000;">
+        
+        <li class="px-3 py-2 border-bottom border-white border-opacity-10 mb-2">
+            <span class="fw-bold small text-uppercase text-white-50">Nouvelles Notifications</span>
+        </li>
+        
+        <div style="max-height: 350px; overflow-y: auto;">
+            {% for notif in user.notifications.all %}
+                {% if not notif.est_lu %}
+                <li>
+                    <a class="dropdown-item rounded-3 p-3 mb-1 bg-white bg-opacity-10 fw-bold border-start border-4 border-primary" 
+                       href="{% url 'marquer_comme_lu' notif.id %}">
+                        <div class="d-flex align-items-start text-wrap">
+                            {% if notif.acteur.profil.photo %}
+                                <img src="{{ notif.acteur.profil.photo.url }}" class="rounded-circle me-3" style="width: 35px; height: 35px; object-fit: cover;">
+                            {% endif %}
+                            <div class="flex-grow-1">
+                                <p class="small mb-1 text-white" style="line-height: 1.2;">
+                                    <span class="text-info">@{{ notif.acteur.username }}</span> {{ notif.message }}
+                                </p>
+                                <small class="text-white-50" style="font-size: 0.7rem;">{{ notif.date_creation|timesince }}</small>
+                            </div>
+                        </div>
+                    </a>
+                </li>
+                {% endif %}
+            {% endfor %}
+        </div>
+
+        <li class="border-top border-white border-opacity-10 mt-2">
+            <a href="{% url 'profil' %}" class="dropdown-item text-center small text-primary py-2 fw-bold">
+                Accéder à l'historique complet
+            </a>
+        </li>
+    </ul>
+</li>
+{% endif %}

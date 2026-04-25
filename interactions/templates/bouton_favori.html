@@ -1,0 +1,14 @@
+{% if user.is_authenticated %}
+    <button class="btn btn-favori p-3 rounded-circle shadow-sm d-inline-flex border-0 toggle-favori" 
+            data-filiere-id="{{ filiere.id }}">
+        {% if filiere.id in user_favoris_ids %}
+            <i class="fas fa-heart text-danger fa-lg animate__animated animate__heartBeat"></i>
+        {% else %}
+            <i class="far fa-heart text-muted fa-lg"></i>
+        {% endif %}
+    </button>
+{% else %}
+    <a href="{% url 'login' %}" class="btn btn-favori p-3 rounded-circle shadow-sm d-inline-flex border-0 text-muted">
+        <i class="far fa-heart fa-lg"></i>
+    </a>
+{% endif %}

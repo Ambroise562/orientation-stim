@@ -1,0 +1,135 @@
+<div class="comments-section mt-5 p-4 bg-light rounded-4 shadow-sm">
+    <h4 class="fw-bold mb-4"><i class="fas fa-comments text-primary me-2"></i>Espace d'échange</h4>
+
+    {% if user.is_authenticated %}
+    <form action="{% url 'ajouter_commentaire' type_obj obj.id %}" method="POST" class="mb-5">
+        {% csrf_token %}
+        <div class="input-group shadow-sm">
+            <textarea name="contenu" class="form-control border-0 rounded-start-4" placeholder="Une question sur {{ obj.nom }} ?" rows="2" required></textarea>
+            <button type="submit" class="btn btn-primary px-4 rounded-end-4">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </form>
+    {% else %}
+    <div class="alert alert-info rounded-4 small">
+        <i class="fas fa-lock me-2"></i> <a href="{% url 'login' %}" class="fw-bold">Connectez-vous</a> pour poser une question ou partager votre expérience.
+    </div>
+    {% endif %}
+
+    <div class="comment-list">
+        {% for comm in commentaires %}
+            {# On ne traite ici que les commentaires parents (ceux qui n'ont pas de parent) #}
+            {% if not comm.parent %} 
+                <div class="comment-item mb-4 animate__animated animate__fadeIn" id="comment-{{ comm.id }}">
+                    <div class="d-flex">
+                        <div class="flex-shrink-0">
+                            <a href="{% url 'voir_profil' comm.auteur.username %}">
+                                <img src="{{ comm.auteur.profil.photo.url }}" class="rounded-circle border border-2 border-white shadow-sm" style="width: 45px; height: 45px; object-fit: cover;">
+                            </a>
+                        </div>
+                        <div class="ms-3 flex-grow-1">
+                            <div class="bg-white p-3 rounded-4 shadow-sm position-relative">
+                                <div class="d-flex justify-content-between align-items-center mb-1">
+                                    <a href="{% url 'voir_profil' comm.auteur.username %}" class="text-decoration-none fw-bold text-dark hover-primary">
+                                        {{ comm.auteur.username|capfirst }}
+                                    </a>
+                                    
+                                    {% if comm.auteur.profil.type_utilisateur == 'AINE' %}
+                                        <span class="badge bg-warning text-dark" style="font-size: 0.7rem;"><i class="fas fa-user-graduate me-1"></i>Aîné STIM</span>
+                                    {% else %}
+                                        <span class="badge bg-light text-muted border" style="font-size: 0.7rem;">Bachelier</span>
+                                    {% endif %}
+                                </div>
+                                <p class="text-muted small mb-2">{{ comm.contenu }}</p>
+                                
+                                <div class="d-flex align-items-center gap-3">
+                                    <button onclick="voter({{ comm.id }}, 'like')" class="btn btn-sm btn-link text-decoration-none p-0 text-success">
+                                        <i class="far fa-thumbs-up"></i> <span id="likes-{{ comm.id }}">{{ comm.likes.count }}</span>
+                                    </button>
+                                    <button onclick="voter({{ comm.id }}, 'dislike')" class="btn btn-sm btn-link text-decoration-none p-0 text-danger">
+                                        <i class="far fa-thumbs-down"></i>
+                                    </button>
+                                    <button onclick="toggleReplyForm({{ comm.id }})" class="btn btn-sm btn-link text-decoration-none p-0 text-primary fw-bold">Répondre</button>
+                                    <small class="text-muted ms-auto" style="font-size: 0.65rem;">{{ comm.date_pub|timesince }}</small>
+                                    
+                                    {# Suppression du COMMENTAIRE PARENT (Auteur du parent ou Admin uniquement) #}
+                                    {% if user == comm.auteur or user.is_staff %}
+                                    <a href="{% url 'supprimer_commentaire' comm.id %}" 
+                                    class="text-danger ms-2" 
+                                    onclick="return confirm('Voulez-vous vraiment supprimer ce message ?')">
+                                        <i class="fas fa-trash-alt" style="font-size: 0.8rem;"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {# Formulaire de réponse #}
+                            <form id="reply-form-{{ comm.id }}" action="{% url 'ajouter_commentaire' type_obj obj.id %}" method="POST" class="mt-2 d-none">
+                                {% csrf_token %}
+                                <input type="hidden" name="parent_id" value="{{ comm.id }}">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="contenu" class="form-control rounded-pill-start" placeholder="Votre réponse...">
+                                    <button class="btn btn-primary rounded-pill-end">Envoyer</button>
+                                </div>
+                            </form>
+
+                            {# Liste des RÉPONSES #}
+                            {% for reponse in comm.reponses.all %}
+                                <div class="ms-5 mt-3 d-flex border-start ps-3 align-items-center justify-content-between" id="comment-{{ reponse.id }}">
+                                    <div class="d-flex align-items-center">
+                                        <div class="flex-shrink-0">
+                                            <a href="{% url 'voir_profil' reponse.auteur.username %}">
+                                                <img src="{{ reponse.auteur.profil.photo.url }}" class="rounded-circle" style="width: 30px; height: 30px; object-fit: cover;">
+                                            </a>
+                                        </div>
+                                        <div class="ms-2 bg-white p-2 px-3 rounded-4 shadow-sm">
+                                            <a href="{% url 'voir_profil' reponse.auteur.username %}" class="text-decoration-none fw-bold small text-dark">
+                                                {{ reponse.auteur.username|capfirst }}
+                                            </a>
+                                            <p class="mb-0 small text-muted">{{ reponse.contenu }}</p>
+                                        </div>
+                                    </div>
+
+                                    {# RÉAJUSTEMENT : Seul l'auteur de la RÉPONSE peut supprimer sa propre réponse #}
+                                    {% if user == reponse.auteur or user.is_staff %}
+                                    <a href="{% url 'supprimer_commentaire' reponse.id %}" 
+                                       class="btn btn-sm text-danger opacity-50 hover-opacity-100"
+                                       onclick="return confirm('Supprimer cette réponse ?')">
+                                        <i class="fas fa-times-circle"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        {% empty %}
+            <p class="text-center text-muted py-4 italic">Aucune question pour le moment. Soyez le premier à poser une question !</p>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* Effet discret au survol des noms cliquables */
+    .hover-primary:hover {
+        color: #0d6efd !important;
+        text-decoration: underline !important;
+    }
+</style>
+
+<script>
+function toggleReplyForm(commId) {
+    const form = document.getElementById('reply-form-' + commId);
+    form.classList.toggle('d-none');
+}
+
+function voter(commId, action) {
+    fetch(`/interactions/vote/${commId}/${action}/`)
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('likes-' + commId).innerText = data.likes;
+        });
+}
+</script>

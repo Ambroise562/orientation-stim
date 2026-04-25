@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil de {{ aine.username }}{% endblock %}
+
+{% block content %}
+<style>
+    :root {
+        --profile-bg: #0a192f;
+        --card-glass: rgba(255, 255, 255, 0.05);
+        --accent-aine: #ffc107; /* Or pour les aînés */
+        --accent-bach: #0d6efd; /* Bleu pour les bacheliers */
+    }
+
+    body { background-color: var(--profile-bg); color: #e6f1ff; }
+
+    .profile-header {
+        background: linear-gradient(to bottom, rgba(13, 110, 253, 0.1), transparent);
+        padding: 60px 0 40px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .avatar-wrapper {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        margin: 0 auto;
+    }
+
+    .avatar-main {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid {% if aine.profil.type_utilisateur == 'AINE' %} var(--accent-aine) {% else %} var(--accent-bach) {% endif %};
+        box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+
+    .type-badge {
+        position: absolute;
+        bottom: 10px;
+        right: 0;
+        padding: 8px 15px;
+        border-radius: 50px;
+        font-weight: 800;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+    }
+
+    .info-card {
+        background: var(--card-glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 25px;
+        padding: 30px;
+        height: 100%;
+    }
+
+    .contact-btn {
+        transition: 0.3s;
+        border-radius: 15px;
+        font-weight: 700;
+    }
+
+    .contact-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(13, 110, 253, 0.2);
+    }
+</style>
+
+<div class="profile-header text-center">
+    <div class="container">
+        <div class="avatar-wrapper mb-4" data-aos="zoom-in">
+            <img src="{{ aine.profil.photo.url }}" class="avatar-main" alt="{{ aine.username }}">
+            
+            {% if aine.profil.type_utilisateur == 'AINE' %}
+                <span class="type-badge bg-warning text-dark">
+                    <i class="fas fa-user-graduate me-1"></i> Aîné STIM
+                </span>
+            {% else %}
+                <span class="type-badge bg-primary text-white">
+                    <i class="fas fa-user me-1"></i> Bachelier
+                </span>
+            {% endif %}
+        </div>
+
+        <h1 class="display-5 fw-900 mb-1">{{ aine.first_name|default:aine.username|capfirst }} {{ aine.last_name|upper }}</h1>
+        <p class="text-white-50">@{{ aine.username }}</p>
+    </div>
+</div>
+
+<div class="container py-5">
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-7">
+            <div class="info-card" data-aos="fade-right">
+                <h3 class="h5 text-primary fw-bold mb-4 border-bottom border-white border-opacity-10 pb-2">
+                    <i class="fas fa-info-circle me-2"></i> Présentation
+                </h3>
+                
+                <div class="mb-4">
+                    <p class="lead" style="font-size: 1.1rem; line-height: 1.6; color: #ccd6f6;">
+                        {{ aine.profil.bio|default:"Cet utilisateur n'a pas encore rempli sa bio." }}
+                    </p>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-4 bg-white bg-opacity-5 border border-white border-opacity-5">
+                            <small class="text-white-50 d-block mb-1">Série du BAC</small>
+                            <span class="fw-bold text-warning">Série {{ aine.profil.serie.nom|default:"Non renseignée" }}</span>
+                        </div>
+                    </div>
+                    
+                    {% if aine.profil.type_utilisateur == 'AINE' %}
+                    <div class="col-sm-6">
+                        <div class="p-3 rounded-4 bg-white bg-opacity-5 border border-white border-opacity-5">
+                            <small class="text-white-50 d-block mb-1">Étudie à</small>
+                            <span class="fw-bold text-info">{{ aine.profil.etablissement|default:"Non renseigné" }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="info-card text-center" data-aos="fade-left">
+                <h3 class="h5 text-primary fw-bold mb-4">Contact & Interaction</h3>
+                
+                <p class="small text-white-50 mb-4">
+                    Besoin de conseils ? N'hésitez pas à contacter cet utilisateur par email.
+                </p>
+
+                <div class="d-grid gap-3">
+                    <a href="mailto:{{ aine.email }}" class="btn btn-primary contact-btn py-3">
+                        <i class="fas fa-envelope me-2"></i> Envoyer un Email
+                    </a>
+                    
+                </div>
+
+                <div class="mt-4 pt-4 border-top border-white border-opacity-10">
+                    <small class="text-white-50">Inscrit depuis {{ aine.date_joined|date:"F Y" }}</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
