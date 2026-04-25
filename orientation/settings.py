@@ -54,7 +54,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware', # Ajout du middleware pour servir les fichiers statiques en production
 ]
 
-ROOT_URLCONF = 'second.urls'
+ROOT_URLCONF = 'orientation.urls'
 
 TEMPLATES = [
     {
@@ -72,7 +72,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'second.wsgi.application'
+WSGI_APPLICATION = 'orientation.wsgi.application'
 
 
 # Database
