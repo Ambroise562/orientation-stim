@@ -81,13 +81,21 @@ WSGI_APPLICATION = 'orientation.wsgi.application'
 import dj_database_url
 import os
 
+# Configuration de la base de données
 DATABASES = {
     'default': dj_database_url.config(
+        # Sur ton PC, il utilisera SQLite. Sur Railway, il utilisera DATABASE_URL (Postgres)
         default=f"sqlite:///{os.path.join(BASE_DIR, 'db.sqlite3')}",
-        conn_max_age=600,
-        ssl_require=True
+        conn_max_age=600
     )
 }
+
+# Cette partie est cruciale pour Railway/Postgres
+if 'DATABASE_URL' in os.environ:
+    DATABASES['default']['OPTIONS'] = {'sslmode': 'require'}
+else:
+    # On retire sslmode si on est en local sur SQLite pour éviter ton erreur
+    DATABASES['default'].pop('OPTIONS', None)
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
