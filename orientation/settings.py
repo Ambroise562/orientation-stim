@@ -159,3 +159,4 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 # Nom qui apparaîtra dans l'objet et la signature du mail
 DEFAULT_FROM_EMAIL = 'ORIENTATION STIM <noreply@orientationstim.bj>'
+CSRF_TRUSTED_ORIGINS = ['https://web-production-981a.up.railway.app']
