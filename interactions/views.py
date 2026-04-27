@@ -25,7 +25,8 @@ def ajouter_commentaire(request, type_obj, obj_id):
         if parent_id:
             parent_comm = get_object_or_404(Commentaire, id=parent_id)
             nouveau_comm.parent = parent_comm
-            nouveau_comm.save() 
+            
+        nouveau_comm.save() 
         
     return redirect(request.META.get('HTTP_REFERER', '/'))
 

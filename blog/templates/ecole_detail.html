@@ -90,14 +90,31 @@
                     <div class="col-md-5">
                         <div class="p-3 h-100 rounded-4 bg-gradient-dark text-white">
                             <h6 class="fw-bold text-warning small text-uppercase mb-3"><i class="fas fa-check-circle me-2"></i>Admission</h6>
-                            <div class="mb-2">
+                            <div class="mb-3">
                                 <span class="d-block small fw-bold opacity-75">Séries :</span>
                                 {% for s in filiere.series_autorisees.all %}<span class="badge bg-white bg-opacity-10 me-1">{{ s.nom }}</span>{% endfor %}
                             </div>
-                            <div>
+                            <div class="mb-3">
                                 <span class="d-block small fw-bold opacity-75">Matières :</span>
                                 {% for m in filiere.matieres_principales.all %}<span class="badge bg-warning text-dark me-1">{{ m.nom }}</span>{% endfor %}
                             </div>
+                            
+                            {% if filiere.bourses or filiere.aides_universitaires %}
+                            <hr class="bg-white opacity-25">
+                            <h6 class="fw-bold text-info small text-uppercase mb-2"><i class="fas fa-hand-holding-heart me-2"></i>Accompagnements</h6>
+                            {% if filiere.bourses %}
+                            <div class="mb-2">
+                                <span class="d-block x-small fw-bold text-info">Bourses :</span>
+                                <p class="small mb-0 opacity-75">{{ filiere.bourses }}</p>
+                            </div>
+                            {% endif %}
+                            {% if filiere.aides_universitaires %}
+                            <div>
+                                <span class="d-block x-small fw-bold text-info">Aides :</span>
+                                <p class="small mb-0 opacity-75">{{ filiere.aides_universitaires }}</p>
+                            </div>
+                            {% endif %}
+                            {% endif %}
                         </div>
                     </div>
                 </div>
@@ -124,7 +141,9 @@
         </div>
     </div>
     {% empty %}
-    <h2>Aucune filiere n'est encore référencée.</h3>
+    <div class="col-12 text-center py-5">
+        <h3 class="text-muted">Aucune filière n'est encore référencée.</h3>
+    </div>
     {% endfor %}
 </div>
 
@@ -135,11 +154,11 @@
     .btn-whatsapp { background: #25d366; color: white; border: none; }
     .hover-lift { transition: 0.3s; }
     .hover-lift:hover { transform: translateY(-5px); }
+    .x-small { font-size: 0.7rem; }
     iframe { width: 100% !important; height: 100% !important; border: 0; }
 </style>
 
 <script>
-    // Script pour la description
     function toggleDesc() {
         const desc = document.getElementById('schoolDescription');
         const btn = document.getElementById('toggleBtn');
