@@ -1,183 +1,106 @@
-from django.http import JsonResponse
-from django.shortcuts import redirect, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Commentaire , Favori, Notification
-from blog.models import Ecole, Filiere
-from django.contrib.auth.models import User
+from pathlib import Path
+import os
 
-@login_required
-def ajouter_commentaire(request, type_obj, obj_id):
-    if request.method == "POST":
-        contenu = request.POST.get('contenu')
-        parent_id = request.POST.get('parent_id')
-        
-        nouveau_comm = Commentaire(
-            auteur=request.user,
-            contenu=contenu
-        )
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
+BASE_DIR = Path(__file__).resolve().parent.parent
 
-        # Liaison à l'objet (Ecole ou Filiere)
-        if type_obj == 'ecole':
-            nouveau_comm.ecole = get_object_or_404(Ecole, id=obj_id)
-        elif type_obj == 'filiere':
-            nouveau_comm.filiere = get_object_or_404(Filiere, id=obj_id)
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-7tfjf1ubruwpnz80j+%14$m%)n%*x2fra1a&+tlevr*6piu3d9'
 
-        if parent_id:
-            parent_comm = get_object_or_404(Commentaire, id=parent_id)
-            nouveau_comm.parent = parent_comm
-            nouveau_comm.save() 
-        
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+# SECURITY WARNING: don't run with debug turned on in production!
+# On le laisse à False pour la sécurité, mais attention : les erreurs seront moins détaillées
+DEBUG = False
 
-@login_required
-def vote_commentaire(request, comm_id, action):
-    commentaire = get_object_or_404(Commentaire, id=comm_id)
-    user = request.user
-    
-    if action == 'like':
-        if user in commentaire.likes.all():
-            commentaire.likes.remove(user)
-        else:
-            commentaire.likes.add(user)
-            commentaire.dislikes.remove(user) # On ne peut pas liker ET disliker
-            
-    elif action == 'dislike':
-        if user in commentaire.dislikes.all():
-            commentaire.dislikes.remove(user)
-        else:
-            commentaire.dislikes.add(user)
-            commentaire.likes.remove(user)
+# Remplace bien par ton URL exacte PythonAnywhere
+ALLOWED_HOSTS = ['Sedjro.pythonanywhere.com', 'localhost', '127.0.0.1']
 
-    return JsonResponse({
-        'score': commentaire.score,
-        'likes': commentaire.likes.count(),
-        'dislikes': commentaire.dislikes.count(),
-    })
-    
-from django.contrib import messages
+# Application definition
+INSTALLED_APPS = [
+    'django.contrib.admin',
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'blog',
+    'comptes',
+    'interactions',
+]
 
-@login_required
-def supprimer_commentaire(request, comm_id):
-    # Récupère le commentaire (que ce soit un parent ou une réponse)
-    commentaire = get_object_or_404(Commentaire, id=comm_id)
-    
-    # Vérification STRICTE de propriété
-    if request.user == commentaire.auteur or request.user.is_staff:
-        
-        # Cas 1 : C'est une réponse OU un parent sans enfant -> On supprime vraiment
-        if commentaire.parent or not commentaire.reponses.exists():
-            commentaire.delete()
-            messages.success(request, "Votre message a été supprimé.")
-        
-        # Cas 2 : C'est un parent qui a des réponses -> On vide juste le texte
-        else:
-            commentaire.contenu = "Ce message a été supprimé par son auteur."
-            # On peut aussi changer l'auteur en un compte "Système" si besoin
-            commentaire.save()
-            messages.info(request, "Le contenu du message a été retiré.")
-            
-    else:
-        # Tentative de suppression illégale (ex: par l'auteur du commentaire parent)
-        messages.error(request, "Action interdite : vous n'êtes pas l'auteur de ce message.")
-    return redirect(request.META.get('HTTP_REFERER', '/'))
-        
-@login_required
-def ajouter_favori(request, filiere_id):
-    filiere = get_object_or_404(Filiere, id=filiere_id)
-    favori, created = Favori.objects.get_or_create(user=request.user, filiere=filiere)
-    
-    if not created:
-        favori.delete() # Si le favori existe déjà, on le supprime (toggle)
-        
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Pour servir les CSS/JS
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
 
+ROOT_URLCONF = 'orientation.urls'
 
-from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import Favori, Filiere
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [os.path.join(BASE_DIR, 'templates')], # Vérifie si tu as un dossier templates à la racine
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'interactions.compteur.notifications_count', # Ta logique de notifications
+            ],
+        },
+    },
+]
 
-@login_required
-def toggle_favori(request, filiere_id):
-    filiere = get_object_or_404(Filiere, id=filiere_id)
-    favori, created = Favori.objects.get_or_create(user=request.user, filiere=filiere)
-    
-    is_favori = True
-    if not created:
-        favori.delete()
-        is_favori = False
-    
-    # CRITIQUE : Cette réponse doit correspondre aux clés du script JS
-    return JsonResponse({
-        'is_favori': is_favori,
-        'filiere_id': filiere_id
-    })
-    
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.models import User
+WSGI_APPLICATION = 'orientation.wsgi.application'
 
-def voir_profil(request, username):
-    # On récupère l'aîné en question
-    aine = get_object_or_404(User, username=username)
-    return render(request, 'profil_public.html', {'aine': aine})
+# Database : On utilise ton fichier db.sqlite3 que tu as chargé
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
 
-# signals.py
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from .models import Commentaire, Notification
+# Internationalization
+LANGUAGE_CODE = 'fr'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
 
-@receiver(post_save, sender=Commentaire, dispatch_uid="unique_notifier_reponse_signal")
-def notifier_reponse(sender, instance, created, **kwargs):
-    if created and instance.parent:
-        if instance.parent.auteur != instance.auteur:
-            
-            url_cible = "/"
-            
-            # Cas 1 : Le commentaire concerne une ÉCOLE
-            # On redirige vers la page de l'Université parente
-            if instance.ecole:
-                # On récupère l'ID de l'université via la relation dans ton modèle Ecole
-                univ_id = instance.ecole.universite.id 
-                url_cible = f"/universite/{univ_id}/#comment-{instance.id}"
-            
-            # Cas 2 : Le commentaire concerne une FILIÈRE
-            # On redirige vers la page de l'École parente
-            elif instance.filiere:
-                # On récupère l'ID de l'école via la relation dans ton modèle Filiere
-                ecole_id = instance.filiere.ecole.id
-                url_cible = f"/ecole/{ecole_id}/#comment-{instance.id}"
+# Static files (CSS, JavaScript)
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-            # Création de la notification
-            Notification.objects.create(
-                destinataire=instance.parent.auteur,
-                acteur=instance.auteur,
-                message=f"{instance.auteur.username} a répondu à votre échange.",
-                url_cible=url_cible
-            )     
-            
-from django.shortcuts import get_object_or_404, redirect
-from django.contrib.auth.decorators import login_required
-from .models import Notification
+# Media files (Images des écoles/universités)
+# Puisque tes images sont éparpillées dans tes apps, on pointe vers la racine du projet
+MEDIA_URL = '/'
+MEDIA_ROOT = BASE_DIR
 
-@login_required
-def marquer_comme_lu(request, notif_id):
-    # On récupère la notification appartenant à l'utilisateur
-    notification = get_object_or_404(Notification, id=notif_id, destinataire=request.user)
-    
-    # On la marque comme lue
-    notification.est_lu = True
-    notification.save()
-    
-    # On redirige vers l'URL cible (la page du commentaire)
-    if notification.url_cible:
-        return redirect(notification.url_cible)
-    return redirect('/') # Repli au cas ou
-    
-@login_required
-def archiver_notification(request, notif_id):
-    # On récupère la notif, on la passe en 'archivée' et on sauvegarde
-    notification = get_object_or_404(request.user.notifications, id=notif_id)
-    notification.est_archivee = True
-    notification.save()
-    return redirect('profil')
+# Auth Redirects
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'
+
+# Email
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'ORIENTATION STIM <noreply@orientationstim.bj>'
+
+# Sécurité CSRF pour PythonAnywhere
+CSRF_TRUSTED_ORIGINS = ['https://Sedjro.pythonanywhere.com']
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
