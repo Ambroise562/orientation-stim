@@ -1,0 +1,352 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Interactions - ORIENTATION STIM{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --vin-900:#2a0a12;
+    --vin-800:#3b0b18;
+    --vin-700:#4c0d1f;
+    --vin-glow: rgba(255,0,80,.18);
+    --vin-accent:#ff2d55;
+    --text:#f8fafc;
+    --muted: rgba(248,250,252,.72);
+    --card: rgba(255,255,255,.06);
+    --card-border: rgba(255,255,255,.12);
+  }
+
+  .admin-vin-bg{
+    background:
+      radial-gradient(circle at 10% 10%, var(--vin-glow) 0%, transparent 35%),
+      radial-gradient(circle at 90% 30%, rgba(255,45,85,.12) 0%, transparent 40%),
+      linear-gradient(135deg, var(--vin-900), #12040a 60%);
+    min-height: calc(100vh - 140px);
+    border-radius: 28px;
+    padding: 28px 18px;
+  }
+
+  .admin-title{
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    background: linear-gradient(90deg, #fff, rgba(255,45,85,.95));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .glass{
+    background: rgba(42, 10, 18, 0.6);
+    border: 1px solid var(--card-border);
+    border-radius: 22px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 20px 50px rgba(0,0,0,.35);
+  }
+
+  .kpi{
+    padding: 18px;
+    background: rgba(60, 15, 30, 0.8) !important;
+    transition: transform .25s ease, border-color .25s ease;
+  }
+  .kpi:hover{
+    transform: translateY(-6px);
+    border-color: rgba(255,45,85,.35);
+    background: rgba(75, 20, 40, 0.9) !important;
+  }
+
+  .kpi-num{
+    font-weight: 900;
+    font-size: 2.4rem;
+    color: #ff2d55;
+  }
+
+  .kpi-label{
+    color: rgba(248,250,252,.85);
+    font-weight: 700;
+    letter-spacing: .02em;
+  }
+
+  .table{
+    background: transparent;
+  }
+  .table thead th{
+    color: rgba(255,255,255,.95);
+    font-weight: 800;
+    border-bottom-color: rgba(255,45,85,.25) !important;
+    background: rgba(255,45,85,.08);
+  }
+  .table td{
+    color: rgba(255,255,255,.90);
+    border-color: rgba(255,255,255,.08) !important;
+    background: transparent;
+  }
+  .table tbody tr{
+    background: transparent !important;
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+  .table tbody tr:hover{
+    background: rgba(255,45,85,.12) !important;
+    border-top-color: rgba(255,45,85,.25) !important;
+  }
+
+  .badge-vin{
+    background: rgba(255,45,85,.12);
+    border: 1px solid rgba(255,45,85,.28);
+    color: rgba(255,45,85,.95);
+  }
+
+  .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+
+  /* Fond rouge vin clair pour la page complète */
+  body {
+    background: linear-gradient(135deg, #4c0d1f 0%, #3b0b18 50%, #4c0d1f 100%) !important;
+    min-height: 100vh;
+  }
+
+  .container {
+    background: transparent;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="admin-vin-bg">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3 mb-4">
+      <div>
+        <div class="badge badge-vin px-3 py-2 rounded-pill mb-2">Dashboard Admin • Interactions</div>
+        <h1 class="admin-title mb-1">Vue d’ensemble du site</h1>
+        <div class="text-white-50">Utilisateurs, commentaires, filières favorites et notifications.</div>
+      </div>
+      <div class="text-white-50 small">Accès : staff/superuser • Mise à jour instantanée</div>
+    </div>
+
+      <!-- Listes en premier (pro) -->
+    
+
+    <div class="row g-3">
+      <!-- UTILISATEURS -->
+      <div class="col-lg-12">
+        <div class="glass p-3 p-md-4 mb-3">
+          <div class="d-flex align-items-center justify-content-between mb-4">
+            <h3 class="h5 m-0 fw-bold text-white">👥 Utilisateurs</h3>
+          </div>
+
+          <!-- SUPERUSERS -->
+          {% if utilisateurs_superuser %}
+          <div class="mb-4">
+            <div class="badge badge-vin px-3 py-2 rounded-pill mb-3">🔐 Superusers ({{ utilisateurs_superuser|length }})</div>
+            <div class="d-flex flex-column gap-2">
+              {% for u in utilisateurs_superuser %}
+              <div class="d-flex align-items-center justify-content-between p-3 border-bottom border-white-10">
+                <div class="d-flex align-items-center gap-3">
+                  <img src="{{ u.profil.photo.url }}" alt="{{ u.username }}" style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:2px solid rgba(255,45,85,.3);" />
+                  <div class="d-flex flex-column">
+                    <a class="text-white text-decoration-none fw-bold" href="{% url 'voir_profil' u.username %}">{{ u.username|capfirst }}</a>
+                    <span class="small text-white-50">{{ u.email|default:'' }}</span>
+                  </div>
+                </div>
+                <span class="badge bg-danger">Superuser</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- STAFF -->
+          {% if utilisateurs_staff %}
+          <div class="mb-4">
+            <div class="badge badge-vin px-3 py-2 rounded-pill mb-3">👨‍💼 Staff ({{ utilisateurs_staff|length }})</div>
+            <div class="d-flex flex-column gap-2">
+              {% for u in utilisateurs_staff %}
+              <div class="d-flex align-items-center justify-content-between p-3 border-bottom border-white-10">
+                <div class="d-flex align-items-center gap-3">
+                  <img src="{{ u.profil.photo.url }}" alt="{{ u.username }}" style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:2px solid rgba(255,45,85,.3);" />
+                  <div class="d-flex flex-column">
+                    <a class="text-white text-decoration-none fw-bold" href="{% url 'voir_profil' u.username %}">{{ u.username|capfirst }}</a>
+                    <span class="small text-white-50">{{ u.email|default:'' }}</span>
+                  </div>
+                </div>
+                <span class="badge bg-warning text-dark">Staff</span>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <!-- UTILISATEURS SIMPLES -->
+          {% if utilisateurs_simples %}
+          <div class="mb-4">
+            <div class="badge badge-vin px-3 py-2 rounded-pill mb-3">👤 Utilisateurs ({{ utilisateurs_simples|length }})</div>
+            <div class="d-flex flex-column gap-2">
+              {% for u in utilisateurs_simples %}
+              <div class="d-flex align-items-center justify-content-between p-3 border-bottom border-white-10">
+                <div class="d-flex align-items-center gap-3">
+                  <img src="{{ u.profil.photo.url }}" alt="{{ u.username }}" style="width:40px;height:40px;object-fit:cover;border-radius:50%;border:2px solid rgba(255,255,255,.15);" />
+                  <div class="d-flex flex-column">
+                    <a class="text-white text-decoration-none fw-bold" href="{% url 'voir_profil' u.username %}">{{ u.username|capfirst }}</a>
+                    <span class="small text-white-50">{{ u.email|default:'' }}</span>
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          {% if not utilisateurs_superuser and not utilisateurs_staff and not utilisateurs_simples %}
+          <div class="text-white-50">Aucun utilisateur.</div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- DERNIERS COMMENTAIRES -->
+      <div class="col-lg-7">
+        <div class="glass p-3 p-md-4 mb-3">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h3 class="h5 m-0 fw-bold text-white">🧾 50 derniers commentaires</h3>
+
+            <div class="text-white-50 small">Parent + réponses</div>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-borderless table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Auteur</th>
+                  <th>Cible</th>
+                  <th>Score</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for comm in derniers_commentaires %}
+                  <tr>
+                    <td class="fw-bold">
+                      <div class="d-flex align-items-center gap-2">
+                        <img src="{{ comm.auteur.profil.photo.url }}" alt="{{ comm.auteur.username }}" style="width:32px;height:32px;object-fit:cover;border-radius:50%;border:2px solid rgba(255,255,255,.18);" />
+                        <a class="text-white text-decoration-none" href="{% url 'voir_profil' comm.auteur.username %}">
+                          {{ comm.auteur.username|capfirst }}
+                        </a>
+                      </div>
+                    </td>
+
+                    <td>
+                      {% if comm.filiere %}
+                        <span class="badge badge-vin rounded-pill">Filière</span>
+                        <div class="small text-white-50">{{ comm.filiere.nom }}</div>
+                      {% elif comm.ecole %}
+                        <span class="badge badge-vin rounded-pill">École</span>
+                        <div class="small text-white-50">{{ comm.ecole.nom }}</div>
+                      {% else %}
+                        <span class="badge rounded-pill text-white-50 border border-white-25">—</span>
+                      {% endif %}
+                    </td>
+                    <td class="mono">{{ comm.score }}</td>
+                    <td class="small text-white-50">{{ comm.date_pub|date:"d/m/Y H:i" }}</td>
+                  </tr>
+                {% empty %}
+                  <tr><td colspan="4" class="text-white-50">Aucun commentaire.</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- FAVORIS PAR FILIÈRE -->
+      <div class="col-lg-5">
+        <div class="glass p-3 p-md-4">
+          <div class="d-flex align-items-center justify-content-between mb-3">
+            <h3 class="h5 m-0 fw-bold text-white">❤️ Filières favorites</h3>
+            <div class="text-white-50 small">Top 30 (performance)</div>
+          </div>
+
+          <div class="d-flex flex-column gap-2">
+            {% for f in favoris_par_filiere %}
+              <div class="d-flex align-items-start justify-content-between gap-3 p-3 rounded-4" style="background: rgba(60, 15, 30, 0.7); border: 1px solid rgba(255,45,85,.15);">
+                <div>
+                  <div class="fw-bold text-white">
+                    <a class="text-white text-decoration-none" href="{% url 'detail_ecole' f.filiere__ecole_id %}#filiere-{{ f.filiere_id }}">{{ f.filiere__nom }}</a>
+                  </div>
+
+                </div>
+                <div class="text-end">
+                  <div class="badge badge-vin rounded-pill px-3 py-2 fw-bold">{{ f.total }}</div>
+                  <div class="small text-white-50 mt-1">coeurs</div>
+                </div>
+              </div>
+            {% empty %}
+              <div class="text-white-50">Aucune filière n’a encore reçu de favori.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- STATS GÉNÉRALES (dernières positions) -->
+  <div class="mt-4">
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="glass kpi h-100">
+          <div class="kpi-num">{{ total_users }}</div>
+          <div class="kpi-label">Utilisateurs</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="glass kpi h-100">
+          <div class="kpi-num">{{ total_commentaires }}</div>
+          <div class="kpi-label">Commentaires (tous)</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="glass kpi h-100">
+          <div class="kpi-num">{{ total_favoris }}</div>
+          <div class="kpi-label">Favoris (coeurs)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+      <div class="col-md-4">
+        <div class="glass kpi h-100">
+          <div class="kpi-num">{{ notifications_non_lues }}</div>
+          <div class="kpi-label">Notifications non lues</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="glass kpi h-100">
+          <div class="kpi-num">{{ notifications_archivees }}</div>
+          <div class="kpi-label">Notifications archivées</div>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="glass kpi h-100">
+          <div class="kpi-num">{{ total_notifications }}</div>
+          <div class="kpi-label">Notifications totales</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <div class="glass p-3 p-md-4">
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+        <div>
+          <h3 class="h5 m-0 fw-bold text-white">Accès rapide</h3>
+          <div class="text-white-50 small">Interface admin Django (super-admin / staff)</div>
+        </div>
+        <a href="{% url 'admin:index' %}" class="btn btn-outline-light rounded-pill px-4 py-2 fw-bold border-white border-opacity-50">
+          <i class="fas fa-lock me-2"></i>Ouvrir l’admin Django
+        </a>
+      </div>
+      <div class="mt-3 text-white-50 small">
+        <i class="fas fa-info-circle me-2"></i>Accès limité aux staff/superuser.
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+

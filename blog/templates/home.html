@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block title %}Accueil - ORIENTATION STIM BÉNIN{% endblock %}
+{% block title %}Accueil - ORIENTATION BÉNIN{% endblock %}
 
 {% block content %}
 <style>
@@ -43,6 +43,26 @@
 
     .highlight { color: var(--neon-yellow); -webkit-text-fill-color: var(--neon-yellow); }
 
+    /* ILLUSTRATION CHAPEAU ANIMÉ */
+    .hat-container {
+        position: relative;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .floating-hat {
+        font-size: 8rem;
+        color: var(--neon-yellow);
+        filter: drop-shadow(0 0 20px rgba(255, 193, 7, 0.4));
+        animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0) rotate(-5deg); }
+        50% { transform: translateY(-20px) rotate(5deg); }
+    }
+
     /* CARTES DE SERVICE GLASSMORPHISM */
     .feature-card {
         background: rgba(255, 255, 255, 0.03);
@@ -73,7 +93,30 @@
         box-shadow: 0 10px 20px rgba(13, 110, 253, 0.3);
     }
 
-    /* BOUTONS MAGIQUES */
+    /* SECTION ÉTAPES (NOUVELLE CONNEXION) */
+    .step-box {
+        border-left: 3px dashed rgba(255, 193, 7, 0.3);
+        padding-left: 30px;
+        margin-bottom: 30px;
+        position: relative;
+    }
+
+    .step-number {
+        position: absolute;
+        left: -18px;
+        top: 0;
+        background: var(--neon-yellow);
+        color: var(--deep-bg);
+        width: 35px;
+        height: 35px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 900;
+    }
+
+    /* BOUTONS */
     .btn-hero-primary {
         padding: 18px 40px;
         font-weight: 800;
@@ -84,7 +127,6 @@
         box-shadow: 0 15px 30px rgba(13, 110, 253, 0.3);
         transition: 0.3s;
         text-transform: uppercase;
-        letter-spacing: 1px;
     }
 
     .btn-hero-primary:hover {
@@ -93,23 +135,6 @@
         color: white;
     }
 
-    .btn-hero-outline {
-        padding: 18px 40px;
-        font-weight: 800;
-        border-radius: 50px;
-        background: transparent;
-        color: white;
-        border: 2px solid rgba(255,255,255,0.2);
-        transition: 0.3s;
-    }
-
-    .btn-hero-outline:hover {
-        background: rgba(255,255,255,0.1);
-        color: var(--neon-yellow);
-        border-color: var(--neon-yellow);
-    }
-
-    /* STATS SECTION */
     .stat-number {
         font-family: 'Outfit', sans-serif;
         font-weight: 900;
@@ -122,22 +147,57 @@
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-7" data-aos="fade-right">
-                <span class="badge bg-primary bg-opacity-10 text-primary px-3 py-2 rounded-pill mb-4 border border-primary border-opacity-25">
-                    🚀 Plateforme d'orientation #1 au Bénin
+                <span class="badge bg-warning bg-opacity-10 text-warning px-3 py-2 rounded-pill mb-4 border border-warning border-opacity-25">
+                    🚀 Votre avenir universitaire commence ici
                 </span>
                 <h1 class="hero-title mb-4">
-                    Tracez votre futur dans les <span class="highlight">STIM</span>
+                    Tracez votre futur dans le <span class="highlight">monde universitaire</span>
                 </h1>
                 <p class="lead text-white-50 mb-5 fs-4">
-                    Ne laissez pas votre avenir au hasard. Découvrez les filières d'excellence, les universités de pointe et simulez vos chances de réussite dès aujourd'hui.
+                    Ne laissez pas votre orientation au hasard. Explorez les universités du Bénin et bénéficiez de l'expérience de vos aînés pour faire le meilleur choix.
                 </p>
                 <div class="d-flex flex-wrap gap-3">
                     <a href="{% url 'universites' %}" class="btn btn-hero-primary">Explorer les Campus</a>
-                    <a href="#simulateur" class="btn btn-hero-outline">Essayer le Simulateur</a>
+                    <a href="#guide" class="btn btn-outline-light rounded-pill px-4 py-3 fw-bold">Comment ça marche ?</a>
                 </div>
             </div>
-            <div class="col-lg-5 d-none d-lg-block" data-aos="zoom-in">
-                <img src="{% static 'img/hero.jpg' %}" class="img-fluid" alt="Innovation">
+            <div class="col-lg-5 d-none d-lg-block text-center" data-aos="zoom-in">
+                <div class="hat-container">
+                    <i class="fas fa-graduation-cap floating-hat"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- SECTION EXPLICATIVE POUR NOUVELLE CONNEXION -->
+<section id="guide" class="py-5" style="background: rgba(255,255,255,0.02);">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <div class="col-lg-6" data-aos="fade-up">
+                <h2 class="h1 fw-900 font-outfit mb-4">Nouveau sur la plateforme ?</h2>
+                <p class="text-white-50 mb-5">Voici les 3 étapes clés pour réussir votre parcours avec nous :</p>
+                
+                <div class="step-box">
+                    <div class="step-number">1</div>
+                    <h4 class="fw-bold text-warning">Recherchez votre école</h4>
+                    <p class="text-white-50">Parcourez notre cartographie complète des universités publiques et privées du Bénin.</p>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-number">2</div>
+                    <h4 class="fw-bold text-warning">Analysez les filières</h4>
+                    <p class="text-white-50">Consultez les débouchés, les conditions d'admission et les bourses disponibles.</p>
+                </div>
+
+                <div class="step-box">
+                    <div class="step-number">3</div>
+                    <h4 class="fw-bold text-warning">Échangez avec les aînés</h4>
+                    <p class="text-white-50">Posez vos questions en bas de page pour obtenir des conseils réels de ceux qui y sont déjà.</p>
+                </div>
+            </div>
+            <div class="col-lg-6 d-none d-lg-block text-center">
+                 <i class="fas fa-map-marked-alt fa-10x opacity-10"></i>
             </div>
         </div>
     </div>
@@ -146,7 +206,7 @@
 <section class="py-5">
     <div class="container py-5">
         <div class="text-center mb-5" data-aos="fade-up">
-            <h2 class="h1 fw-900 font-outfit">Pourquoi choisir notre plateforme ?</h2>
+            <h2 class="h1 fw-900 font-outfit">Pourquoi nous choisir ?</h2>
             <div class="bg-primary mx-auto mt-3" style="width: 60px; height: 4px; border-radius: 2px;"></div>
         </div>
 
@@ -156,18 +216,18 @@
                     <div class="icon-box text-white">
                         <i class="fas fa-university"></i>
                     </div>
-                    <h3 class="h4 fw-bold mb-3">Cartographie Complète</h3>
-                    <p class="text-white-50">Accédez aux détails de toutes les universités publiques du Bénin.</p>
+                    <h3 class="h4 fw-bold mb-3">Données Officielles</h3>
+                    <p class="text-white-50">Accédez aux informations certifiées de toutes les universités du Bénin.</p>
                 </div>
             </div>
 
             <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
                 <div class="feature-card">
                     <div class="icon-box text-white">
-                        <i class="fas fa-microchip"></i>
+                        <i class="fas fa-magic"></i>
                     </div>
-                    <h3 class="h4 fw-bold mb-3">Simulateur IA</h3>
-                    <p class="text-white-50">Entrez vos notes et laissez notre algorithme analyser vos chances d'admission dans les filières les plus sélectives.</p>
+                    <h3 class="h4 fw-bold mb-3">Simulateur</h3>
+                    <p class="text-white-50">Bientôt disponible : analysez vos chances d'admission selon vos notes réelles.</p>
                 </div>
             </div>
 
@@ -176,8 +236,8 @@
                     <div class="icon-box text-white">
                         <i class="fas fa-comments"></i>
                     </div>
-                    <h3 class="h4 fw-bold mb-3">Avis Étudiants</h3>
-                    <p class="text-white-50">Lisez les témoignages réels de vos aînés pour comprendre la réalité du terrain avant de vous inscrire.</p>
+                    <h3 class="h4 fw-bold mb-3">Communauté</h3>
+                    <p class="text-white-50">Interagissez avec vos aînés pour comprendre la réalité de chaque formation.</p>
                 </div>
             </div>
         </div>
@@ -187,7 +247,7 @@
 <section class="py-5" style="background: rgba(13, 110, 253, 0.05);">
     <div class="container">
         <div class="row text-center g-4">
-            <div class="col-md-3" data-aos="counter">
+            <div class="col-md-3">
                 <div class="stat-number">04</div>
                 <div class="text-white-50 fw-bold">UNIVERSITÉS</div>
             </div>
@@ -197,7 +257,7 @@
             </div>
             <div class="col-md-3">
                 <div class="stat-number">120+</div>
-                <div class="text-white-50 fw-bold">FILIÈRES STIM</div>
+                <div class="text-white-50 fw-bold">FILIÈRES</div>
             </div>
             <div class="col-md-3">
                 <div class="stat-number">98%</div>
@@ -209,14 +269,13 @@
 
 <section class="container py-5 my-5">
     <div class="p-5 rounded-5 text-center shadow-lg" style="background: linear-gradient(45deg, #0d6efd, #001f3f);">
-        <h2 class="display-5 fw-900 mb-4">Prêt à lancer votre carrière ?</h2>
-        <p class="lead mb-5 opacity-75">Inscrivez-vous gratuitement et commencez à construire votre parcours académique.</p>
+        <h2 class="display-5 fw-900 mb-4 text-white">Prêt à lancer votre carrière ?</h2>
+        <p class="lead mb-5 opacity-75 text-white">Inscrivez-vous gratuitement et commencez à construire votre parcours académique.</p>
         <a href="{% url 'inscription' %}" class="btn btn-warning btn-lg px-5 py-3 rounded-pill fw-bold text-dark">Créer mon compte</a>
     </div>
 </section>
 
 <script>
-    // Animation simple pour les chiffres si tu veux du dynamisme
     AOS.init({ duration: 1000, once: true });
 </script>
 {% endblock %}

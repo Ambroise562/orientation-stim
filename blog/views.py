@@ -1,8 +1,23 @@
 from django.db.models import Q
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.template.defaultfilters import escape
 from .forms import *
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import *
 from .utils import *
+from django.conf import settings
+
+def get_safe_referrer(request):
+    """Validate and return a safe redirect URL"""
+    referrer = request.META.get('HTTP_REFERER', '/')
+    # Only allow internal redirects
+    if referrer and (referrer.startswith('/') or referrer.startswith('http')):
+        from urllib.parse import urlparse
+        parsed = urlparse(referrer)
+        # Ensure the referrer is from the same domain
+        if parsed.netloc in ['', request.get_host()]:
+            return referrer
+    return '/'
 
 
 # Create your views here.
@@ -10,7 +25,15 @@ def home(request):
     return render(request, 'home.html')
 
 def universites(request):
-    universites = Universite.objects.all()
+    universites_list = Universite.objects.prefetch_related('ecoles').all()
+    paginator = Paginator(universites_list, settings.PAGINATION_LIMIT)
+    page = request.GET.get('page')
+    try:
+        universites = paginator.page(page)
+    except PageNotAnInteger:
+        universites = paginator.page(1)
+    except EmptyPage:
+        universites = paginator.page(paginator.num_pages)
     return render(request, 'universites.html', {'universites': universites})
 
 
@@ -28,8 +51,8 @@ def detail_universite(request, univ_id):
     })
     
 def detail_ecole(request, ecole_id):
-    ecole = get_object_or_404(Ecole, id=ecole_id)
-    filieres = ecole.filieres.all().prefetch_related('series_autorisees', 'matieres_principales', 'admission')  # Grâce à related_name='filieres'
+    ecole = get_object_or_404(Ecole.objects.select_related('universite'), id=ecole_id)
+    filieres = ecole.filieres.all().prefetch_related('series_autorisees', 'matieres_principales', 'admission', 'commentaires__auteur')  # Grâce à related_name='filieres'
     user_favoris_ids = []
     if request.user.is_authenticated:
         user_favoris_ids = request.user.favoris.values_list('filiere_id', flat=True)
@@ -45,20 +68,33 @@ def recherche_globale(request):
     ecoles = []
     filieres = []
     
-    if query:
+    if query and len(query) >= 2:  # Limit queries shorter than 2 characters
+        query_limit = getattr(settings, 'SEARCH_RESULT_LIMIT', 100)
+        
         # 1. Recherche dans les Écoles (Nom, Nom détaillé, Description)
-        ecoles = Ecole.objects.filter(
+        ecoles_list = Ecole.objects.filter(
             Q(nom__icontains=query) | 
             Q(nom_detaille__icontains=query) | 
             Q(description__icontains=query)
-        ).distinct()
+        ).select_related('universite').distinct()[:query_limit]
 
-        # 2. Recherche dans les Filières (Nom, Débouchés) 
-        # + Recherche par Série (si la requête correspond au nom d'une série)
-        filieres = Filiere.objects.filter(
+        # 2. Recherche dans les Filières (Nom, Débouchés)
+        filieres_list = Filiere.objects.filter(
             Q(nom__icontains=query) | 
             Q(debouches__icontains=query) 
-            ).select_related('ecole').distinct()
+        ).select_related('ecole').distinct()[:query_limit]
+        
+        # Apply pagination
+        page_num = request.GET.get('page', 1)
+        paginator_ecoles = Paginator(ecoles_list, 10)
+        paginator_filieres = Paginator(filieres_list, 10)
+        
+        try:
+            ecoles = paginator_ecoles.page(page_num)
+            filieres = paginator_filieres.page(page_num)
+        except (PageNotAnInteger, EmptyPage):
+            ecoles = paginator_ecoles.page(1)
+            filieres = paginator_filieres.page(1)
 
     return render(request, 'recherche.html', {
         'ecoles': ecoles,

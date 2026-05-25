@@ -1,15 +1,16 @@
 from pathlib import Path
 import os
+import secrets
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-7tfjf1ubruwpnz80j+%14$m%)n%*x2fra1a&+tlevr*6piu3d9'
+# Generate a new secret key and store it in an environment variable for production
+SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY', secrets.token_urlsafe(50))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# On le laisse à False pour la sécurité, mais attention : les erreurs seront moins détaillées
-DEBUG = False
+DEBUG = True
 
 # Remplace bien par ton URL exacte PythonAnywhere
 ALLOWED_HOSTS = ['Sedjro.pythonanywhere.com', 'localhost', '127.0.0.1']
@@ -24,7 +25,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'blog',
     'comptes',
-    'interactions',
+    'interactions.apps.InteractionsConfig',
 ]
 
 MIDDLEWARE = [
@@ -87,11 +88,11 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # Media files (Images des écoles/universités)
-# Puisque tes images sont éparpillées dans tes apps, on pointe vers la racine du projet
 MEDIA_URL = '/'
 MEDIA_ROOT = BASE_DIR
 
 # Auth Redirects
+LOGIN_URL = '/comptes/connexion/'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
@@ -104,3 +105,11 @@ CSRF_TRUSTED_ORIGINS = ['https://Sedjro.pythonanywhere.com']
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Pagination settings
+PAGINATION_LIMIT = 50
+SEARCH_RESULT_LIMIT = 100
+
+# Security headers
+SECURE_REFERRER_POLICY = 'strict-origin-when-cross-origin'
+X_FRAME_OPTIONS = 'DENY'

@@ -9,4 +9,8 @@ urlpatterns = [
     path('voir_profil/<str:username>/', views.voir_profil, name='voir_profil'),
     path('notification/lire/<int:notif_id>/', views.marquer_comme_lu, name='marquer_comme_lu'),
     path('notification/archiver/<int:notif_id>/', views.archiver_notification, name='archiver_notification'),
+
+    # Dashboard Admin Interactions
+    path('admin/', views.admin_dashboard, name='interactions_admin'),
 ]
+

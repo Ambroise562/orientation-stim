@@ -1,34 +1,133 @@
 from django.http import JsonResponse
-from django.shortcuts import redirect, get_object_or_404
+from django.shortcuts import redirect, get_object_or_404, render
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_http_methods
+from django.utils.html import escape
+from django.core.exceptions import ValidationError
 from .models import Commentaire , Favori, Notification
 from blog.models import Ecole, Filiere
 from django.contrib.auth.models import User
+from urllib.parse import urlparse
+
+
+def get_safe_referrer(request):
+    """Validate and return a safe redirect URL"""
+    referrer = request.META.get('HTTP_REFERER', '/')
+    if referrer:
+        parsed = urlparse(referrer)
+        # Only allow internal redirects (same domain)
+        if parsed.netloc in ['', request.get_host()] or parsed.netloc.startswith(request.get_host()):
+            if referrer.startswith('/') or referrer.startswith('http'):
+                return referrer
+    return '/' 
+
 
 @login_required
-def ajouter_commentaire(request, type_obj, obj_id):
-    if request.method == "POST":
-        contenu = request.POST.get('contenu')
-        parent_id = request.POST.get('parent_id')
-        
-        nouveau_comm = Commentaire(
-            auteur=request.user,
-            contenu=contenu
-        )
+def admin_dashboard(request):
+    # Accès réservé aux admins (staff/superuser)
+    if not (request.user.is_staff or request.user.is_superuser):
+        return redirect('/')
 
-        # Liaison à l'objet (Ecole ou Filiere)
+    from django.contrib.auth.models import User
+    from django.db.models import Count
+
+    total_users = User.objects.count()
+    total_commentaires = Commentaire.objects.count()
+
+    # Séparer les utilisateurs par rôle
+    utilisateurs_superuser = User.objects.filter(is_superuser=True).select_related('profil').order_by('-date_joined')
+    utilisateurs_staff = User.objects.filter(is_staff=True, is_superuser=False).select_related('profil').order_by('-date_joined')
+    utilisateurs_simples = User.objects.filter(is_staff=False, is_superuser=False).select_related('profil').order_by('-date_joined')
+
+    # 50 derniers commentaires (parents + réponses)
+    derniers_commentaires = (
+        Commentaire.objects
+        .select_related('auteur', 'ecole', 'filiere', 'parent', 'auteur__profil')
+        .order_by('-date_pub')[:50]
+    )
+
+
+    # Favoris: top par filière, sans afficher les IDs dans le template.
+    # On expose l'école associée pour rendre un lien.
+    favoris_par_filiere = (
+        Favori.objects
+        .values('filiere_id', 'filiere__nom', 'filiere__ecole_id')
+        .annotate(total=Count('id'))
+        .order_by('-total')
+    )
+
+    favoris_par_filiere = list(favoris_par_filiere[:30])
+    total_favoris = Favori.objects.count()
+
+    total_notifications = Notification.objects.count()
+    notifications_non_lues = Notification.objects.filter(est_lu=False).count()
+    notifications_archivees = Notification.objects.filter(est_archivee=True).count()
+
+    context = {
+        'utilisateurs_superuser': utilisateurs_superuser,
+        'utilisateurs_staff': utilisateurs_staff,
+        'utilisateurs_simples': utilisateurs_simples,
+        'total_users': total_users,
+        'total_commentaires': total_commentaires,
+        'derniers_commentaires': derniers_commentaires,
+        'favoris_par_filiere': favoris_par_filiere,
+        'total_favoris': total_favoris,
+        'total_notifications': total_notifications,
+        'notifications_non_lues': notifications_non_lues,
+        'notifications_archivees': notifications_archivees,
+    }
+
+    return render(request, 'admin_dashboard.html', context)
+
+
+@login_required
+@require_http_methods(["POST"])
+def ajouter_commentaire(request, type_obj, obj_id):
+
+    contenu = request.POST.get('contenu', '').strip()
+    parent_id = request.POST.get('parent_id')
+    
+    # Validate comment content
+    if not contenu:
+        from django.contrib import messages
+        messages.error(request, "Le commentaire ne peut pas être vide.")
+        return redirect(get_safe_referrer(request))
+    
+    if len(contenu) > 5000:
+        from django.contrib import messages
+        messages.error(request, "Le commentaire est trop long (max 5000 caractères).")
+        return redirect(get_safe_referrer(request))
+    
+    # Sanitize content (escape HTML)
+    contenu = escape(contenu)
+    
+    nouveau_comm = Commentaire(
+        auteur=request.user,
+        contenu=contenu
+    )
+
+    # Liaison à l'objet (Ecole ou Filiere)
+    try:
         if type_obj == 'ecole':
             nouveau_comm.ecole = get_object_or_404(Ecole, id=obj_id)
         elif type_obj == 'filiere':
             nouveau_comm.filiere = get_object_or_404(Filiere, id=obj_id)
+        else:
+            raise ValidationError("Type d'objet invalide")
+    except ValidationError:
+        from django.contrib import messages
+        messages.error(request, "Type d'objet invalide.")
+        return redirect(get_safe_referrer(request))
 
-        if parent_id:
-            parent_comm = get_object_or_404(Commentaire, id=parent_id)
-            nouveau_comm.parent = parent_comm
-            
-        nouveau_comm.save() 
+    if parent_id:
+        parent_comm = get_object_or_404(Commentaire, id=parent_id)
+        nouveau_comm.parent = parent_comm
         
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+    nouveau_comm.save() 
+    
+    from django.contrib import messages
+    messages.success(request, "Votre commentaire a été ajouté.")
+    return redirect(get_safe_referrer(request))
 
 @login_required
 def vote_commentaire(request, comm_id, action):
@@ -80,7 +179,7 @@ def supprimer_commentaire(request, comm_id):
     else:
         # Tentative de suppression illégale (ex: par l'auteur du commentaire parent)
         messages.error(request, "Action interdite : vous n'êtes pas l'auteur de ce message.")
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+    return redirect(get_safe_referrer(request))
         
 @login_required
 def ajouter_favori(request, filiere_id):
@@ -90,7 +189,7 @@ def ajouter_favori(request, filiere_id):
     if not created:
         favori.delete() # Si le favori existe déjà, on le supprime (toggle)
         
-    return redirect(request.META.get('HTTP_REFERER', '/'))
+    return redirect(get_safe_referrer(request))
 
 
 from django.http import JsonResponse
@@ -181,4 +280,4 @@ def archiver_notification(request, notif_id):
     notification = get_object_or_404(request.user.notifications, id=notif_id)
     notification.est_archivee = True
     notification.save()
-    return redirect('profil')
+    return redirect(get_safe_referrer(request))
