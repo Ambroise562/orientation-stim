@@ -445,8 +445,8 @@ Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de 
 
 **Ambroise562**
 - GitHub: [@Ambroise562](https://github.com/Ambroise562)
-- Email: [Ton email]
-- Site: [Ton site web]
+- Email: [ambroisehoundagnanme@gmail.com]
+- Site: [sedjro.pythonanywhere.com]
 
 ---
 
