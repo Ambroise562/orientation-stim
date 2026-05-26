@@ -5,6 +5,8 @@ from .forms import InscriptionForm
 from django.contrib.auth.decorators import login_required
 from .forms import ProfilUpdateForm, UserUpdateForm
 from interactions.models import Favori, Commentaire # Importe tes modèles
+from django.contrib.auth import authenticate, login
+from django.views.decorators.http import require_http_methods
 
 def inscription_view(request):
     if request.method == 'POST':
@@ -24,7 +26,32 @@ def inscription_view(request):
     return render(request, 'inscription.html', {'form': form})
 
 
-@login_required
+@require_http_methods(["GET", "POST"])
+def login_view(request):
+    """Vue de connexion personnalisée avec redirection vers le profil"""
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        user = authenticate(request, username=username, password=password)
+        
+        if user is not None:
+            login(request, user)
+            messages.success(request, f'Bienvenue {username} ! 👋')
+            messages.info(request, 'Remplissez les infos de votre profil au besoin pour bien vous faire connaître.')
+            
+            # Récupère le paramètre 'next' pour la redirection conditionnelle
+            next_url = request.POST.get('next') or request.GET.get('next')
+            if next_url:
+                return redirect(next_url)
+            else:
+                return redirect('profil')
+        else:
+            messages.error(request, 'Nom d\'utilisateur ou mot de passe incorrect.')
+    
+    return render(request, 'login.html')
+
+
 def modifier_profil(request):
     if request.method == 'POST':
         u_form = UserUpdateForm(request.POST, instance=request.user)

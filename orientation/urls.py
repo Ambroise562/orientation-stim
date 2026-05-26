@@ -28,12 +28,17 @@ urlpatterns = [
     path('ecole/<int:ecole_id>/', detail_ecole, name='detail_ecole'), # type: ignore
     path('simulateur', simulateur_view, name='simulateur'), # type: ignore
     path('recherche_globale', recherche_globale, name='recherche_globale'), # type: ignore
-    
-    
+
+    # Inclure les URLs additionnelles de l'app blog
+    path('', include('blog.urls')),
+
     # On inclut les URLs de l'app 'comptes'
+
     # Toutes les adresses de comptes commenceront par /comptes/
     path('comptes/', include('comptes.urls')),
-    path('interactions/', include('interactions.urls'))
+    path('interactions/', include('interactions.urls')),
+
+
 
 
 

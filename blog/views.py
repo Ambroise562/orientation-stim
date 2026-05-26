@@ -107,9 +107,18 @@ def recherche_globale(request):
     
 from django.contrib.auth.decorators import login_required
 
+def future_universites_privees(request):
+    return render(request, 'future.html')
+
+
+def aide_view(request):
+    return render(request, 'aide.html')
+
+
 def simulateur_view(request):
     # 1. Gestion des données initiales (Lien avec le Profil)
     initial_data = {}
+
     serie_choisie_obj = None
     
     if request.user.is_authenticated:

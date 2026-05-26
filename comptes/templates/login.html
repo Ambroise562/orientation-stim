@@ -13,6 +13,11 @@
                 <form method="POST">
                     {% csrf_token %}
                     
+                    <!-- Champ caché pour la redirection -->
+                    {% if request.GET.next %}
+                        <input type="hidden" name="next" value="{{ request.GET.next }}">
+                    {% endif %}
+                    
                     {% if form.non_field_errors %}
                         <div class="alert alert-danger py-2 small">
                             Identifiants incorrects. Veuillez réessayer.

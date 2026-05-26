@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Aide - Orientation-Bénin{% endblock %}
+
+{% block extra_css %}
+<style>
+  :root{
+    --bg:#0b1220;
+    --card:rgba(255,255,255,.06);
+    --border:rgba(255,255,255,.10);
+    --text:#e5e7eb;
+    --muted:rgba(229,231,235,.74);
+    --accent:#0d6efd;
+    --accent2:#ffc107;
+  }
+  body{background: linear-gradient(180deg, #050a14 0%, var(--bg) 100%); color: var(--text);}
+
+  .help-wrap{padding: 90px 0 70px;}
+  .help-card{
+    background: rgba(255,255,255,.03);
+    border: 1px solid var(--border);
+    border-radius: 26px;
+    box-shadow: 0 30px 90px rgba(0,0,0,.45);
+    overflow:hidden;
+    position:relative;
+  }
+  .help-card:before{
+    content:"";
+    position:absolute;
+    inset:-80px;
+    background:
+      radial-gradient(circle at 15% 25%, rgba(13,110,253,.35), transparent 40%),
+      radial-gradient(circle at 75% 70%, rgba(255,193,7,.25), transparent 45%);
+    pointer-events:none;
+  }
+  .help-inner{position:relative; padding: 35px;}
+
+  .help-title{
+    font-family: 'Outfit', sans-serif;
+    font-weight: 900;
+    letter-spacing: -.6px;
+    font-size: clamp(1.8rem, 4vw, 2.7rem);
+  }
+
+  .help-sub{color: var(--muted); font-size: 1.05rem; line-height: 1.7;}
+
+  .help-accordion .accordion-item{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    margin-bottom: 12px;
+    overflow:hidden;
+  }
+  .help-accordion .accordion-button{
+    background: transparent;
+    color: var(--text);
+    font-weight: 800;
+    box-shadow:none;
+  }
+  .help-accordion .accordion-button:not(.collapsed){
+    color: var(--text);
+    background: rgba(13,110,253,.10);
+  }
+  .help-accordion .accordion-body{color: var(--muted); line-height:1.8;}
+
+  .help-actions a{
+    text-decoration:none;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="help-wrap">
+  <div class="container">
+    <div class="help-card" data-aos="fade-up">
+      <div class="help-inner">
+        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+          <div>
+            <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill" style="background: rgba(255,193,7,.12); border: 1px solid rgba(255,193,7,.30); color: var(--accent2); font-weight:800;">
+              <i class="fas fa-life-ring"></i>
+              Centre d’aide
+            </div>
+            <h1 class="help-title mt-3">Besoin d’aide ?</h1>
+            <p class="help-sub mt-2 mb-0">
+              Retrouve ici les réponses aux questions les plus fréquentes. Si tu ne trouves pas, écris-nous via WhatsApp ou email.
+            </p>
+          </div>
+
+          <div class="help-actions d-flex flex-wrap gap-2">
+            <a href="mailto:orientationbenin@gmail.com" class="btn btn-outline-light rounded-pill px-4 py-2 fw-bold">
+              <i class="fas fa-envelope me-2"></i>Nous écrire
+            </a>
+            <a href="https://wa.me/2290149750431" target="_blank" class="btn" style="background: var(--accent); color:#fff; border:none; border-radius: 999px; padding: 10px 18px; font-weight:900;">
+              <i class="fab fa-whatsapp me-2"></i>WhatsApp
+            </a>
+          </div>
+        </div>
+
+        <div class="mt-4 help-accordion">
+          <div class="accordion" id="helpAccordion">
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="h1">
+                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#c1" aria-expanded="true" aria-controls="c1">
+                  Comment parcourir les universités et leurs établissements ?
+                </button>
+              </h2>
+              <div id="c1" class="accordion-collapse collapse show" aria-labelledby="h1" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                  Ouvre la page <b>Universités</b>, puis clique sur <b>Visiter les écoles du campus</b> pour voir la liste des établissements et accéder aux filières.
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="h2">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c2" aria-expanded="false" aria-controls="c2">
+                  Le simulateur : c’est quoi et comment l’utiliser ?
+                </button>
+              </h2>
+              <div id="c2" class="accordion-collapse collapse" aria-labelledby="h2" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                  Le simulateur vous aide à estimer les filières possibles en fonction de votre série et de vos notes. (Certaines fonctionnalités peuvent évoluer.)
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="h3">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c3" aria-expanded="false" aria-controls="c3">
+                  Pourquoi certaines informations ne sont pas encore disponibles ?
+                </button>
+              </h2>
+              <div id="c3" class="accordion-collapse collapse" aria-labelledby="h3" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                  L’orientation est mise à jour progressivement. Certaines pages (par exemple des parties “bientôt disponibles”) sont en préparation.
+                </div>
+              </div>
+            </div>
+
+            <div class="accordion-item">
+              <h2 class="accordion-header" id="h4">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#c4" aria-expanded="false" aria-controls="c4">
+                  Je veux signaler une erreur : comment faire ?
+                </button>
+              </h2>
+              <div id="c4" class="accordion-collapse collapse" aria-labelledby="h4" data-bs-parent="#helpAccordion">
+                <div class="accordion-body">
+                  Utilisez la section <b>Nous rapporter vos avis</b> (email ou WhatsApp) depuis le footer. Mentionnez le nom de l’université/école et décrivez l’erreur.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4 text-white-50" style="font-size:.98rem;">
+          <i class="fas fa-circle-info me-2" style="color: rgba(255,193,7,.9);"></i>
+          Dernière mise à jour : <span id="helpDate"></span>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  document.getElementById('helpDate').textContent = new Date().toLocaleDateString('fr-FR');
+  if (window.AOS) AOS.init({ duration: 1000, once: true });
+</script>
+{% endblock %}
+

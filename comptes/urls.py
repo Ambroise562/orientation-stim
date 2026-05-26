@@ -8,8 +8,8 @@ urlpatterns = [
     path('profil/',profil_view, name='profil'),
     path('inscription/', inscription_view, name='inscription'),
     
-    # Connexion (vue intégrée de Django avec ton template)
-    path('connexion/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
+    # Connexion (vue personnalisée qui redirige vers le profil)
+    path('connexion/', login_view, name='login'),
     
     # Déconnexion (vue intégrée)
     path('deconnexion/', auth_views.LogoutView.as_view(), name='logout'),

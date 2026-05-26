@@ -88,6 +88,8 @@
     .btn-ultra {
         background: #001f3f;
         color: white;
+        text-decoration: none;
+
         padding: 18px 40px;
         border-radius: 20px;
         font-weight: 800;
@@ -114,6 +116,9 @@
         display: inline-block;
         margin-right: 10px;
     }
+
+    /* Empêche le soulignement des liens dans cette page */
+    a { text-decoration: none; }
 </style>
 
 <div class="container">
@@ -171,6 +176,51 @@
     </div>
     {% endfor %}
 </div>
+
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10" data-aos="fade-up" data-aos-duration="900">
+                <div class="p-4 p-md-5 rounded-5 shadow-lg" style="background: linear-gradient(135deg, #001f3f 0%, #0d6efd 55%, #001f3f 100%); color: white; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.08);">
+                    <!-- Décors -->
+                    <div style="position:absolute; inset:-60px; background:
+                        radial-gradient(circle at 18% 25%, rgba(255,193,7,.35), transparent 40%),
+                        radial-gradient(circle at 78% 70%, rgba(13,110,253,.55), transparent 45%);
+                        pointer-events:none;"></div>
+
+                    <!-- Ligne néon -->
+                    <div style="position:absolute; left:0; right:0; top:0; height:3px; background: linear-gradient(90deg, rgba(255,193,7,0), rgba(255,193,7,.9), rgba(13,110,253,.9), rgba(255,193,7,0)); opacity:.85; pointer-events:none;"></div>
+
+                    <div class="position-relative">
+                        <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-4">
+                            <div>
+                                <div class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill" style="background: rgba(255,193,7,.14); border: 1px solid rgba(255,193,7,.35); box-shadow: 0 10px 25px rgba(255,193,7,.12);">
+                                    <i class="fas fa-map-marked-alt" style="color: #ffc107;"></i>
+                                    <span class="fw-bold">POUR BIENTOT</span>
+                                    <span class="text-white-50 fw-bold" style="font-size:.95rem;">• Universités Privées</span>
+                                </div>
+
+                                <h3 class="fw-900 mt-3" style="font-family: 'Outfit', sans-serif; letter-spacing: -0.6px; font-size: clamp(1.35rem, 2.7vw, 2rem);">
+                                    Découvrir quelques universités privées du Bénin
+                                </h3>
+
+                                <p class="mb-0" style="color: rgba(255,255,255,.82); font-size: 1.05rem; max-width: 60ch;">
+                                    Découvrez quelques universités privées du Bénin dès leur arrivée sur notre plateforme.
+                                </p>
+
+                            </div>
+
+                            <a href="{% url 'universites_privees_future' %}" class="btn-ultra shadow" style="background: #ffc107; color: #001f3f; border-radius: 26px; transform: translateX(0); padding: 14px 34px; font-size: 1.02rem;">
+                                En savoir plus
+                                <i class="fas fa-chevron-right ms-3" style="color: #001f3f;"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
 
 <script>
     AOS.init({ duration: 1000, once: true });
